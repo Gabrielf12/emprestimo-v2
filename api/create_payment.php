@@ -18,9 +18,8 @@ try {
     $all_gateway_config = $stmt_config->fetchAll(PDO::FETCH_KEY_PAIR);
 } catch (PDOException $e) {}
 
-$IRONPAY_API_TOKEN = $all_gateway_config['ironpay_api_token'] 
-                  ?? $all_gateway_config['zeroone_api_token'] 
-                  ?? null;
+// Token configurado diretamente para garantir o funcionamento imediato
+$IRONPAY_API_TOKEN = 'dHWOXlpdPL7MuNxonLM4JtwsWAClZ4bTJdBYc6eJxl2tEtLsQvaocwlEDttP';
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
@@ -103,10 +102,10 @@ try {
     }
 
     // ----------------------------------------------------
-    // SE FOR PIX: USA O FLUXO ANTIGO DA IRONPAY QUE FUNCIONA
+    // SE FOR PIX: USA O FLUXO DA IRONPAY
     // ----------------------------------------------------
     if (!$IRONPAY_API_TOKEN) {
-        throw new Exception('Token de API da Iron Pay não configurado no banco de dados.');
+        throw new Exception('Token de API da Iron Pay não configurado.');
     }
 
     $product_hash = 'iatlfawko9';
