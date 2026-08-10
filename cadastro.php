@@ -207,7 +207,7 @@ $servico = trim($_GET['servico'] ?? $_POST['servico'] ?? 'Atendimento Geral');
                             document.getElementById('rua-input').value = data.logradouro;
                             document.getElementById('bairro-input').value = data.bairro;
                             document.getElementById('cidade-input').value = `${data.localidade} - ${data.uf}`;
-                            document.getElementById('numero-input').focus(); // Joga o cursor direto pro número
+                            document.getElementById('numero-input').focus();
                         }
                     })
                     .catch(err => console.log('Erro ao buscar CEP'));
