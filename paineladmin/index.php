@@ -1,5 +1,5 @@
 <?php
-// Ficheiro: admin/index.php - O Dashboard Principal (VERSÃO COM GRÁFICO E OSCILAÇÃO)
+// Ficheiro: admin/index.php - O Dashboard Principal (VERSÃO SEM GRÁFICO DE FUNDO)
 
 // --- 1. LÓGICA PHP E AUTENTICAÇÃO ---
 session_start();
@@ -249,12 +249,10 @@ try {
 
         </div>
 
-        <!-- SECÇÃO DE GRÁFICO E MERCADO EM TEMPO REAL -->
+        <!-- SECÇÃO DE MERCADO E COTAÇÕES EM TEMPO REAL -->
         <div class="mt-8">
             <div class="card-custom bg-slate-900/80 border border-slate-800 rounded-2xl p-6 relative overflow-hidden shadow-xl" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.90), rgba(15, 23, 42, 0.98)); border: 1px solid rgba(56, 189, 248, 0.25);">
-                <!-- Canvas do Gráfico ao Fundo -->
-                <canvas id="admin-bg-chart" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; opacity: 0.15; pointer-events: none;"></canvas>
-
+                
                 <div class="relative z-10">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
                         <div>
@@ -335,46 +333,6 @@ try {
         if(elBar1) elBar1.style.width = chance1 + '%';
         if(elBar2) elBar2.style.width = chance2 + '%';
     }, 4000);
-
-    // Gráfico de Fundo Animado Admin
-    const canvasAdmin = document.getElementById('admin-bg-chart');
-    if(canvasAdmin) {
-        const ctxAdmin = canvasAdmin.getContext('2d');
-        function resizeAdminCanvas() {
-            canvasAdmin.width = canvasAdmin.parentElement.offsetWidth;
-            canvasAdmin.height = canvasAdmin.parentElement.offsetHeight || 150;
-        }
-        window.addEventListener('resize', resizeAdminCanvas);
-        resizeAdminCanvas();
-
-        let adminPoints = [];
-        for(let i=0; i<30; i++) adminPoints.push(Math.random() * canvasAdmin.height);
-
-        function drawAdminChart() {
-            ctxAdmin.clearRect(0, 0, canvasAdmin.width, canvasAdmin.height);
-            ctxAdmin.beginPath();
-            ctxAdmin.strokeStyle = '#38bdf8';
-            ctxAdmin.lineWidth = 2;
-
-            adminPoints.shift();
-            adminPoints.push(canvasAdmin.height * 0.3 + Math.random() * (canvasAdmin.height * 0.4));
-
-            let step = canvasAdmin.width / (adminPoints.length - 1);
-            for(let i=0; i<adminPoints.length; i++) {
-                let x = i * step;
-                let y = adminPoints[i];
-                if(i === 0) ctxAdmin.moveTo(x, y);
-                else ctxAdmin.lineTo(x, y);
-            }
-            ctxAdmin.stroke();
-            
-            ctxAdmin.lineTo(canvasAdmin.width, canvasAdmin.height);
-            ctxAdmin.lineTo(0, canvasAdmin.height);
-            ctxAdmin.fillStyle = 'rgba(56, 189, 248, 0.05)';
-            ctxAdmin.fill();
-        }
-        setInterval(drawAdminChart, 1500);
-    }
     </script>
 </body>
 </html>
