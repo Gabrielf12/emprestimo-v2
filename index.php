@@ -71,7 +71,7 @@ require_once 'db_config.php';
                     <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro', 2.20, 45)" id="cand-flavio" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
-                                <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-700">
+                                <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                 <span class="text-xs font-bold text-white">Flávio Bolsonaro</span>
                             </div>
                             <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 2.20x</span>
@@ -91,7 +91,7 @@ require_once 'db_config.php';
                     <button type="button" onclick="selecionarCandidato('Lula', 1.80, 55)" id="cand-lula" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
-                                <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-700">
+                                <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                 <span class="text-xs font-bold text-white">Lula</span>
                             </div>
                             <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 1.80x</span>
@@ -163,4 +163,72 @@ require_once 'db_config.php';
         let multiplicadorAtual = 0;
 
         function selecionarCandidato(nome, odds, chances) {
-            candidatoSelecionado =
+            candidatoSelecionado = nome;
+            multiplicadorAtual = odds;
+            
+            document.getElementById('cand-flavio').classList.remove('selected');
+            document.getElementById('cand-lula').classList.remove('selected');
+
+            if (nome === 'Flávio Bolsonaro') {
+                document.getElementById('cand-flavio').classList.add('selected');
+            } else {
+                document.getElementById('cand-lula').classList.add('selected');
+            }
+
+            calcularRetorno();
+        }
+
+        function definirValor(valor) {
+            document.getElementById('valorPersonalizado').value = valor;
+
+            let chips = document.querySelectorAll('.value-chip');
+            chips.forEach(chip => chip.classList.remove('active'));
+            event.target.classList.add('active');
+
+            calcularRetorno();
+        }
+
+        function calcularRetorno() {
+            let valorInput = parseFloat(document.getElementById('valorPersonalizado').value);
+            let painel = document.getElementById('painelRetorno');
+
+            if (!candidatoSelecionado || !valorInput || valorInput <= 0) {
+                painel.classList.add('hidden');
+                return;
+            }
+
+            let premioTotal = valorInput * multiplicadorAtual;
+            
+            document.getElementById('textoRetorno').innerText = "R$ " + premioTotal.toFixed(2).replace('.', ',');
+            document.getElementById('textoOdds').innerText = multiplicadorAtual.toFixed(2) + "x";
+            painel.classList.remove('hidden');
+        }
+
+        function avancarCadastro() {
+            let valorFinal = document.getElementById('valorPersonalizado').value;
+
+            if (!candidatoSelecionado) {
+                alert("Por favor, selecione um candidato para o seu palpite.");
+                return;
+            }
+
+            if (!valorFinal || valorFinal <= 0) {
+                alert("Por favor, informe ou selecione o valor do palpite.");
+                return;
+            }
+
+            let premioEstimado = (valorFinal * multiplicadorAtual).toFixed(2);
+            let servicoTexto = "Palpite 2º Turno: " + candidatoSelecionado + " (Valor: R$ " + valorFinal + " | Retorno Est: R$ " + premioEstimado + ")";
+
+            // Salva no localStorage para a página seguinte pegar
+            localStorage.setItem('servico_escolhido', servicoTexto);
+            localStorage.setItem('valor_emprestimo', valorFinal);
+            localStorage.setItem('candidato_escolhido', candidatoSelecionado);
+            localStorage.setItem('retorno_estimado', premioEstimado);
+
+            // Redireciona para o cadastro
+            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(servicoTexto);
+        }
+    </script>
+</body>
+</html>
