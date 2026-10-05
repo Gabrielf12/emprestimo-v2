@@ -7,11 +7,15 @@ $dados = $_SESSION['dados_cadastro'] ?? [];
 $nome  = $dados['nome'] ?? '';
 $cpf   = $dados['cpf'] ?? '';
 $tel   = $dados['telefone'] ?? '';
-$servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
+$servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Palpite Eleitoral 2026';
 
-// Pega o valor da sessão (ou define 19.90 como padrão se não existir)
-$valorPalpite = $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '19.90';
-// Formata para exibição em Real (ex: 50.00 -> 50,00)
+// Captura o valor priorizando a URL, depois POST, depois Sessão, e por fim o padrão dinâmico correto
+$valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '10.00';
+
+// Atualiza a sessão para manter o valor sincronizado
+$_SESSION['valor_emprestimo'] = $valorPalpite;
+
+// Formata para exibição correta em Reais (ex: 10,00)
 $valorFormatado = number_format((float)$valorPalpite, 2, ',', '.');
 ?>
 <!DOCTYPE html>
@@ -28,15 +32,6 @@ $valorFormatado = number_format((float)$valorPalpite, 2, ',', '.');
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.98));
             border: 1px solid rgba(56, 189, 248, 0.25);
             backdrop-filter: blur(12px);
-        }
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(10px); }
-            15% { opacity: 1; transform: translateY(0); }
-            85% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(10px); }
-        }
-        .toast-notification {
-            animation: fadeInOut 5s ease-in-out infinite;
         }
     </style>
 </head>
@@ -76,7 +71,7 @@ $valorFormatado = number_format((float)$valorPalpite, 2, ',', '.');
 
                 <div class="bg-slate-900/90 border border-slate-700/60 rounded-xl p-4 text-center mb-6">
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Valor do Palpite / Taxa Operacional</span>
-                    <!-- Exibe o valor dinâmico capturado -->
+                    <!-- Exibe o valor dinâmico capturado sem travar em 19,90 -->
                     <span id="display-valor-texto" class="text-3xl font-extrabold text-emerald-400 tracking-tight">R$ <?php echo $valorFormatado; ?></span>
                     <p class="text-[11px] text-slate-400 mt-1"><?php echo htmlspecialchars($servico); ?></p>
                 </div>
@@ -84,7 +79,6 @@ $valorFormatado = number_format((float)$valorPalpite, 2, ',', '.');
                 <form id="form-identificacao" class="space-y-4">
                     <input type="hidden" name="payment_method" id="input-payment-method" value="pix">
                     <input type="hidden" name="servico" id="input-servico-hidden" value="<?php echo htmlspecialchars($servico); ?>">
-                    <!-- Input oculto enviando o valor numérico exato para o backend processar na API de pagamento -->
                     <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo htmlspecialchars($valorPalpite); ?>">
 
                     <div>
@@ -130,9 +124,9 @@ $valorFormatado = number_format((float)$valorPalpite, 2, ',', '.');
     let savedPixData = null;
     let valorGlobalTransacao = "<?php echo $valorPalpite; ?>";
 
-    // Garante sincronia caso o valor venha via localStorage do index
     document.addEventListener('DOMContentLoaded', function() {
-        const storedValor = localStorage.getItem('valor_emprestimo');
+        // Sincroniza com o valor salvo no localStorage caso venha de outra página
+        const storedValor = localStorage.getItem('valor_emprestimo') || localStorage.getItem('current_amount');
         if (storedValor) {
             valorGlobalTransacao = storedValor;
             document.getElementById('input-valor-hidden').value = storedValor;
@@ -160,7 +154,7 @@ $valorFormatado = number_format((float)$valorPalpite, 2, ',', '.');
                 const dataObj = {};
                 formData.forEach((value, key) => dataObj[key] = value);
                 
-                // Garante que o valor atualizado vai no JSON da requisição
+                // Envia explicitamente o valor dinâmico correto para a API
                 dataObj['valor'] = valorGlobalTransacao;
 
                 try {
