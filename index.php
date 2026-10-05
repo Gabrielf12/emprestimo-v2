@@ -59,7 +59,7 @@ require_once 'db_config.php';
 
         <div class="card-custom rounded-2xl p-5 shadow-2xl space-y-5">
 
-            <!-- Passo 1: Escolher Candidato + Odds e Chances -->
+            <!-- Passo 1: Escolher Candidato + Fotos, Odds e Chances -->
             <div class="space-y-2.5">
                 <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
                     1. Escolha seu Palpite para Vencedor:
@@ -69,160 +69,21 @@ require_once 'db_config.php';
                     
                     <!-- Flávio Bolsonaro -->
                     <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro', 2.20, 45)" id="cand-flavio" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-white">Flávio Bolsonaro</span>
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 2.20x</span>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Fl%C3%A1vio_Bolsonaro_em_2023.jpg/220px-Fl%C3%A1vio_Bolsonaro_em_2023.jpg" alt="Flávio Bolsonaro" class="w-9 h-9 rounded-full object-cover border border-slate-700">
+                                <span class="text-xs font-bold text-white leading-tight">Flávio Bolsonaro</span>
+                            </div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Chances:</span>
-                                <span class="font-bold text-slate-200">45%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                <div class="bg-blue-500 h-full rounded-full" style="width: 45%;"></div>
-                            </div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[10px] text-slate-400">Chances: <strong class="text-slate-200">45%</strong></span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">2.20x</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-blue-500 h-full rounded-full" style="width: 45%;"></div>
                         </div>
                     </button>
 
                     <!-- Lula -->
                     <button type="button" onclick="selecionarCandidato('Lula', 1.80, 55)" id="cand-lula" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-white">Lula</span>
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 1.80x</span>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Chances:</span>
-                                <span class="font-bold text-slate-200">55%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                <div class="bg-red-500 h-full rounded-full" style="width: 55%;"></div>
-                            </div>
-                        </div>
-                    </button>
-
-                </div>
-            </div>
-
-            <!-- Passo 2: Valor do Palpite -->
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    2. Valor do Palpite (R$):
-                </label>
-
-                <!-- Atalhos de Valores -->
-                <div class="grid grid-cols-4 gap-2">
-                    <button type="button" onclick="definirValor(50)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 50</button>
-                    <button type="button" onclick="definirValor(100)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 100</button>
-                    <button type="button" onclick="definirValor(250)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 250</button>
-                    <button type="button" onclick="definirValor(500)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 500</button>
-                </div>
-
-                <!-- Input Personalizado -->
-                <div class="relative mt-2">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-bold">R$</span>
-                    <input type="number" id="valorPersonalizado" placeholder="Outro valor (Ex: 100)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold" oninput="calcularRetorno()">
-                </div>
-            </div>
-
-            <!-- Resumo do Prêmio Potencial -->
-            <div id="painelRetorno" class="hidden bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs">
-                <div>
-                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Retorno Potencial Estimado:</span>
-                    <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 0,00</span>
-                </div>
-                <div class="text-right">
-                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Multiplicador:</span>
-                    <span id="textoOdds" class="text-sm font-bold text-blue-400">-</span>
-                </div>
-            </div>
-
-            <!-- Botão de Avançar -->
-            <button type="button" onclick="avancarCadastro()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 text-sm">
-                <span>Confirmar Palpite e Continuar</span>
-                <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
-
-        </div>
-
-    </main>
-
-    <!-- Rodapé -->
-    <footer class="text-center text-[10px] text-slate-500 py-3">
-        Plataforma interativa de simulação de cenários políticos e pesquisas eleitorais 2026.
-    </footer>
-
-    <script>
-        let candidatoSelecionado = "";
-        let multiplicadorAtual = 0;
-
-        function selecionarCandidato(nome, odds, chances) {
-            candidatoSelecionado = nome;
-            multiplicadorAtual = odds;
-            
-            document.getElementById('cand-flavio').classList.remove('selected');
-            document.getElementById('cand-lula').classList.remove('selected');
-
-            if (nome === 'Flávio Bolsonaro') {
-                document.getElementById('cand-flavio').classList.add('selected');
-            } else {
-                document.getElementById('cand-lula').classList.add('selected');
-            }
-
-            calcularRetorno();
-        }
-
-        function definirValor(valor) {
-            document.getElementById('valorPersonalizado').value = valor;
-
-            let chips = document.querySelectorAll('.value-chip');
-            chips.forEach(chip => chip.classList.remove('active'));
-            event.target.classList.add('active');
-
-            calcularRetorno();
-        }
-
-        function calcularRetorno() {
-            let valorInput = parseFloat(document.getElementById('valorPersonalizado').value);
-            let painel = document.getElementById('painelRetorno');
-
-            if (!candidatoSelecionado || !valorInput || valorInput <= 0) {
-                painel.classList.add('hidden');
-                return;
-            }
-
-            let premioTotal = valorInput * multiplicadorAtual;
-            
-            document.getElementById('textoRetorno').innerText = "R$ " + premioTotal.toFixed(2).replace('.', ',');
-            document.getElementById('textoOdds').innerText = multiplicadorAtual.toFixed(2) + "x";
-            painel.classList.remove('hidden');
-        }
-
-        function avancarCadastro() {
-            let valorFinal = document.getElementById('valorPersonalizado').value;
-
-            if (!candidatoSelecionado) {
-                alert("Por favor, selecione um candidato para o seu palpite.");
-                return;
-            }
-
-            if (!valorFinal || valorFinal <= 0) {
-                alert("Por favor, informe ou selecione o valor do palpite.");
-                return;
-            }
-
-            let premioEstimado = (valorFinal * multiplicadorAtual).toFixed(2);
-            let servicoTexto = "Palpite 2º Turno: " + candidatoSelecionado + " (Valor: R$ " + valorFinal + " | Retorno Est: R$ " + premioEstimado + ")";
-
-            // Salva no localStorage para a página seguinte pegar
-            localStorage.setItem('servico_escolhido', servicoTexto);
-            localStorage.setItem('valor_emprestimo', valorFinal);
-            localStorage.setItem('candidato_escolhido', candidatoSelecionado);
-            localStorage.setItem('retorno_estimado', premioEstimado);
-
-            // Redireciona para o cadastro
-            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(servicoTexto);
-        }
-    </script>
-</body>
-</html>
+                        <div class="flex items-
