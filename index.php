@@ -113,4 +113,166 @@ require_once 'db_config.php';
                         </div>
                         <div class="space-y-1">
                             <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Chances
+                                <span>Chances:</span>
+                                <span class="font-bold text-slate-200 flex items-center gap-1">
+                                    <span id="pct-lula">55</span>%
+                                    <i id="icon-lula" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
+                                </span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 55%;"></div>
+                            </div>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Passo 2: Valor do Palpite -->
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    2. Valor do Palpite (R$):
+                </label>
+
+                <!-- Atalhos de Valores -->
+                <div class="grid grid-cols-4 gap-2">
+                    <button type="button" onclick="definirValor(50, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800 active">R$ 50</button>
+                    <button type="button" onclick="definirValor(100, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 100</button>
+                    <button type="button" onclick="definirValor(250, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 250</button>
+                    <button type="button" onclick="definirValor(500, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 500</button>
+                </div>
+
+                <!-- Input Personalizado -->
+                <div class="relative mt-2">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-bold">R$</span>
+                    <input type="number" id="valorPersonalizado" value="50" placeholder="Outro valor (Ex: 100)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold" oninput="removerAtivoChips(); calcularRetorno();">
+                </div>
+            </div>
+
+            <!-- Resumo do Prêmio Potencial -->
+            <div id="painelRetorno" class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all">
+                <div>
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Retorno Potencial Estimado:</span>
+                    <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 90,00</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Multiplicador:</span>
+                    <span id="textoOdds" class="text-sm font-bold text-blue-400">1.80x</span>
+                </div>
+            </div>
+
+            <!-- Botão de Avançar -->
+            <button type="button" onclick="avancarCadastro()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 text-sm">
+                <span>Confirmar Palpite e Continuar</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+
+        </div>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="text-center text-[10px] text-slate-500 py-3">
+        Plataforma interativa de simulação de cenários políticos e pesquisas eleitorais 2026.
+    </footer>
+
+    <script>
+        let candidatoSelecionado = "Lula";
+        let multiplicadorAtual = 1.80;
+
+        let currentFlavioPct = 45;
+        let currentLulaPct = 55;
+        let currentFlavioOdds = 2.20;
+        let currentLulaOdds = 1.80;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnLula = document.getElementById('cand-lula');
+            if (btnLula) btnLula.classList.add('selected');
+            calcularRetorno();
+        });
+
+        function selecionarCandidato(nome) {
+            candidatoSelecionado = nome;
+            const btnFlavio = document.getElementById('cand-flavio');
+            const btnLula = document.getElementById('cand-lula');
+            
+            if (nome === 'Flávio Bolsonaro') {
+                multiplicadorAtual = currentFlavioOdds;
+                if (btnFlavio) btnFlavio.classList.add('selected');
+                if (btnLula) btnLula.classList.remove('selected');
+            } else {
+                multiplicadorAtual = currentLulaOdds;
+                if (btnLula) btnLula.classList.add('selected');
+                if (btnFlavio) btnFlavio.classList.remove('selected');
+            }
+
+            calcularRetorno();
+        }
+
+        function definirValor(valor, btnElement) {
+            const inputVal = document.getElementById('valorPersonalizado');
+            if (inputVal) inputVal.value = valor;
+
+            let chips = document.querySelectorAll('.value-chip');
+            chips.forEach(chip => chip.classList.remove('active'));
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
+
+            calcularRetorno();
+        }
+
+        function removerAtivoChips() {
+            let chips = document.querySelectorAll('.value-chip');
+            chips.forEach(chip => chip.classList.remove('active'));
+        }
+
+        function calcularRetorno() {
+            const inputVal = document.getElementById('valorPersonalizado');
+            const painel = document.getElementById('painelRetorno');
+            if (!inputVal || !painel) return;
+
+            let valorInput = parseFloat(inputVal.value);
+
+            if (!candidatoSelecionado || isNaN(valorInput) || valorInput <= 0) {
+                painel.classList.add('hidden');
+                return;
+            }
+
+            let premioTotal = valorInput * multiplicadorAtual;
+            
+            const txtRetorno = document.getElementById('textoRetorno');
+            const txtOdds = document.getElementById('textoOdds');
+            
+            if (txtRetorno) txtRetorno.innerText = "R$ " + premioTotal.toFixed(2).replace('.', ',');
+            if (txtOdds) txtOdds.innerText = multiplicadorAtual.toFixed(2) + "x";
+            painel.classList.remove('hidden');
+        }
+
+        function avancarCadastro() {
+            const inputVal = document.getElementById('valorPersonalizado');
+            let valorFinal = inputVal ? inputVal.value : 50;
+
+            if (!candidatoSelecionado) {
+                alert("Por favor, selecione um candidato para o seu palpite.");
+                return;
+            }
+
+            if (!valorFinal || valorFinal <= 0) {
+                alert("Por favor, informe ou selecione o valor do palpite.");
+                return;
+            }
+
+            let premioEstimado = (valorFinal * multiplicadorAtual).toFixed(2);
+            let servicoTexto = "Palpite 2º Turno: " + candidatoSelecionado + " (Valor: R$ " + valorFinal + " | Retorno Est: R$ " + premioEstimado + ")";
+
+            localStorage.setItem('servico_escolhido', servicoTexto);
+            localStorage.setItem('valor_emprestimo', valorFinal);
+            localStorage.setItem('candidato_escolhido', candidatoSelecionado);
+            localStorage.setItem('retorno_estimado', premioEstimado);
+
+            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(servicoTexto);
+        }
+    </script>
+</body>
+</html>
