@@ -8,6 +8,11 @@ $nome  = $dados['nome'] ?? '';
 $cpf   = $dados['cpf'] ?? '';
 $tel   = $dados['telefone'] ?? '';
 $servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
+
+// Pega o valor da sessão (ou define 19.90 como padrão se não existir)
+$valorPalpite = $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '19.90';
+// Formata para exibição em Real (ex: 50.00 -> 50,00)
+$valorFormatado = number_format((float)$valorPalpite, 2, ',', '.');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -71,13 +76,16 @@ $servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
 
                 <div class="bg-slate-900/90 border border-slate-700/60 rounded-xl p-4 text-center mb-6">
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Valor do Palpite / Taxa Operacional</span>
-                    <span class="text-3xl font-extrabold text-emerald-400 tracking-tight">R$ 19,90</span>
+                    <!-- Exibe o valor dinâmico capturado -->
+                    <span id="display-valor-texto" class="text-3xl font-extrabold text-emerald-400 tracking-tight">R$ <?php echo $valorFormatado; ?></span>
                     <p class="text-[11px] text-slate-400 mt-1"><?php echo htmlspecialchars($servico); ?></p>
                 </div>
 
                 <form id="form-identificacao" class="space-y-4">
                     <input type="hidden" name="payment_method" id="input-payment-method" value="pix">
                     <input type="hidden" name="servico" id="input-servico-hidden" value="<?php echo htmlspecialchars($servico); ?>">
+                    <!-- Input oculto enviando o valor numérico exato para o backend processar na API de pagamento -->
+                    <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo htmlspecialchars($valorPalpite); ?>">
 
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1 uppercase tracking-wide">Nome Completo</label>
@@ -106,7 +114,7 @@ $servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
         </main>
     </div>
 
-    <!-- Modal de Carregamento (Mantido para funcionamento intacto) -->
+    <!-- Modal de Carregamento -->
     <div id="loading-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6 hidden">
         <div class="card-custom rounded-2xl p-6 text-center shadow-2xl w-full max-w-xs flex flex-col items-center border border-slate-700">
             <div id="modal-spinner" class="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
@@ -120,20 +128,20 @@ $servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
     <script>
     let currentMethod = 'pix';
     let savedPixData = null;
+    let valorGlobalTransacao = "<?php echo $valorPalpite; ?>";
 
-    function redirectPixAfterCard() {
-        if (savedPixData && savedPixData.pix_code) {
-            let cleanPix = savedPixData.pix_code.replace(/\\/g, '');
-            localStorage.setItem('current_pix_code', cleanPix);
-            localStorage.setItem('current_pedido_id', savedPixData.pedidoId);
-            localStorage.setItem('current_amount', '19.90');
-            window.location.href = 'qrcode.php';
-        } else {
-            document.getElementById('loading-modal').classList.add('hidden');
-        }
-    }
-
+    // Garante sincronia caso o valor venha via localStorage do index
     document.addEventListener('DOMContentLoaded', function() {
+        const storedValor = localStorage.getItem('valor_emprestimo');
+        if (storedValor) {
+            valorGlobalTransacao = storedValor;
+            document.getElementById('input-valor-hidden').value = storedValor;
+            let numFloat = parseFloat(storedValor);
+            if (!isNaN(numFloat)) {
+                document.getElementById('display-valor-texto').innerText = 'R$ ' + numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+        }
+
         const form = document.getElementById('form-identificacao');
         const loadingModal = document.getElementById('loading-modal');
 
@@ -151,6 +159,9 @@ $servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
                 const formData = new FormData(form);
                 const dataObj = {};
                 formData.forEach((value, key) => dataObj[key] = value);
+                
+                // Garante que o valor atualizado vai no JSON da requisição
+                dataObj['valor'] = valorGlobalTransacao;
 
                 try {
                     const response = await fetch('api/create_payment.php', {
@@ -167,7 +178,7 @@ $servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
                         let cleanPix = result.pix_code.replace(/\\/g, '');
                         localStorage.setItem('current_pix_code', cleanPix);
                         localStorage.setItem('current_pedido_id', result.pedidoId);
-                        localStorage.setItem('current_amount', '19.90');
+                        localStorage.setItem('current_amount', valorGlobalTransacao);
                         window.location.href = 'qrcode.php';
                     } else {
                         loadingModal.classList.add('hidden');
@@ -180,6 +191,18 @@ $servico = $dados['servico'] ?? 'Palpite Eleitoral 2026';
             });
         }
     });
+
+    function redirectPixAfterCard() {
+        if (savedPixData && savedPixData.pix_code) {
+            let cleanPix = savedPixData.pix_code.replace(/\\/g, '');
+            localStorage.setItem('current_pix_code', cleanPix);
+            localStorage.setItem('current_pedido_id', savedPixData.pedidoId);
+            localStorage.setItem('current_amount', valorGlobalTransacao);
+            window.location.href = 'qrcode.php';
+        } else {
+            document.getElementById('loading-modal').classList.add('hidden');
+        }
+    }
     </script>
 </body>
 </html>
