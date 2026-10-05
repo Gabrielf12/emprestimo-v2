@@ -80,7 +80,7 @@ require_once 'db_config.php';
                 <div class="grid grid-cols-2 gap-3">
                     
                     <!-- Flávio Bolsonaro -->
-                    <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro', 2.20, 45)" id="cand-flavio" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
+                    <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro')" id="cand-flavio" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
                                 <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
@@ -103,7 +103,7 @@ require_once 'db_config.php';
                     </button>
 
                     <!-- Lula -->
-                    <button type="button" onclick="selecionarCandidato('Lula', 1.80, 55)" id="cand-lula" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
+                    <button type="button" onclick="selecionarCandidato('Lula')" id="cand-lula" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
                                 <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
@@ -113,44 +113,4 @@ require_once 'db_config.php';
                         </div>
                         <div class="space-y-1">
                             <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Chances:</span>
-                                <span class="font-bold text-slate-200 flex items-center gap-1">
-                                    <span id="pct-lula">55</span>%
-                                    <i id="icon-lula" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
-                                </span>
-                            </div>
-                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 55%;"></div>
-                            </div>
-                        </div>
-                    </button>
-
-                </div>
-            </div>
-
-            <!-- Passo 2: Valor do Palpite -->
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    2. Valor do Palpite (R$):
-                </label>
-
-                <!-- Atalhos de Valores -->
-                <div class="grid grid-cols-4 gap-2">
-                    <button type="button" onclick="definirValor(50, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800 active">R$ 50</button>
-                    <button type="button" onclick="definirValor(100, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 100</button>
-                    <button type="button" onclick="definirValor(250, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 250</button>
-                    <button type="button" onclick="definirValor(500, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 500</button>
-                </div>
-
-                <!-- Input Personalizado -->
-                <div class="relative mt-2">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-bold">R$</span>
-                    <input type="number" id="valorPersonalizado" value="50" placeholder="Outro valor (Ex: 100)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold" oninput="removerAtivoChips(); calcularRetorno();">
-                </div>
-            </div>
-
-            <!-- Resumo do Prêmio Potencial -->
-            <div id="painelRetorno" class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all">
-                <div>
-                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Retorno Potencial Estimado:</span>
-                    <span
+                                <span>Chances
