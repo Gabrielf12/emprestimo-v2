@@ -1,13 +1,17 @@
-FROM php:8.2-apache-bullseye
+FROM php:8.2-apache-bookworm
 
-# Habilitar mod_rewrite e instalar dependências
-RUN a2enmod rewrite \
-    && apt-get update && apt-get install -y \
-        libpq-dev \
-        unzip \
-        git \
-    && docker-php-ext-install pdo pdo_pgsql pgsql \
+# Atualiza os pacotes e instala as dependências do sistema
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    unzip \
+    git \
     && rm -rf /var/lib/apt/lists/*
+
+# Instala as extensões PHP para PostgreSQL
+RUN docker-php-ext-install pdo pdo_pgsql pgsql
+
+# Habilita o mod_rewrite do Apache
+RUN a2enmod rewrite
 
 # Instalar composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
