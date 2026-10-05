@@ -36,6 +36,13 @@ require_once 'db_config.php';
             color: #ffffff;
             border-color: #3b82f6;
         }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .live-pulse {
+            animation: pulse-subtle 2s infinite;
+        }
     </style>
 </head>
 <body class="bg-slate-950 min-h-screen font-sans text-gray-100 flex flex-col justify-between">
@@ -44,7 +51,9 @@ require_once 'db_config.php';
     <header class="bg-custom-header text-white text-xs py-2.5 px-4 border-b border-slate-800">
         <div class="max-w-xl mx-auto flex justify-between items-center">
             <span class="font-semibold"><i class="fa-solid fa-chart-line text-emerald-400 mr-1.5"></i> Mercado Eleitoral 2026 (2º Turno)</span>
-            <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i> Ao Vivo</span>
+            <span class="text-emerald-400 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Ao Vivo <span id="market-status" class="text-[9px] text-slate-400 font-normal">(-0.2s)</span>
+            </span>
         </div>
     </header>
 
@@ -61,9 +70,12 @@ require_once 'db_config.php';
 
             <!-- Passo 1: Escolher Candidato + Odds e Chances -->
             <div class="space-y-2.5">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    1. Escolha seu Palpite para Vencedor:
-                </label>
+                <div class="flex justify-between items-center">
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                        1. Escolha seu Palpite para Vencedor:
+                    </label>
+                    <span id="market-trend-msg" class="text-[10px] text-amber-400 font-medium italic live-pulse">Mercado oscilando...</span>
+                </div>
                 
                 <div class="grid grid-cols-2 gap-3">
                     
@@ -74,15 +86,18 @@ require_once 'db_config.php';
                                 <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                 <span class="text-xs font-bold text-white">Flávio Bolsonaro</span>
                             </div>
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 2.20x</span>
+                            <span id="odds-flavio-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 2.20x</span>
                         </div>
                         <div class="space-y-1">
                             <div class="flex justify-between text-[10px] text-slate-400">
                                 <span>Chances:</span>
-                                <span class="font-bold text-slate-200">45%</span>
+                                <span class="font-bold text-slate-200 flex items-center gap-1">
+                                    <span id="pct-flavio">45</span>%
+                                    <i id="icon-flavio" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
+                                </span>
                             </div>
                             <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                <div class="bg-blue-500 h-full rounded-full" style="width: 45%;"></div>
+                                <div id="bar-flavio" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 45%;"></div>
                             </div>
                         </div>
                     </button>
@@ -94,15 +109,18 @@ require_once 'db_config.php';
                                 <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                 <span class="text-xs font-bold text-white">Lula</span>
                             </div>
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 1.80x</span>
+                            <span id="odds-lula-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 1.80x</span>
                         </div>
                         <div class="space-y-1">
                             <div class="flex justify-between text-[10px] text-slate-400">
                                 <span>Chances:</span>
-                                <span class="font-bold text-slate-200">55%</span>
+                                <span class="font-bold text-slate-200 flex items-center gap-1">
+                                    <span id="pct-lula">55</span>%
+                                    <i id="icon-lula" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
+                                </span>
                             </div>
                             <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                <div class="bg-red-500 h-full rounded-full" style="width: 55%;"></div>
+                                <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 55%;"></div>
                             </div>
                         </div>
                     </button>
@@ -162,17 +180,75 @@ require_once 'db_config.php';
         let candidatoSelecionado = "";
         let multiplicadorAtual = 0;
 
+        // Variáveis globais para simulação em tempo real
+        let currentFlavioPct = 45;
+        let currentLulaPct = 55;
+        let currentFlavioOdds = 2.20;
+        let currentLulaOdds = 1.80;
+
+        // Simulação realista de oscilação do mercado de apostas políticas
+        setInterval(() => {
+            // Sorteia direção da oscilação (-1, 0 ou +1)
+            const delta = (Math.random() > 0.5 ? 1 : -1) * (Math.random() < 0.3 ? 2 : 1);
+            
+            let newFlavio = currentFlavioPct + delta;
+            
+            // Mantém limites realistas entre 38% e 58%
+            if (newFlavio >= 38 && newFlavio <= 58) {
+                currentFlavioPct = newFlavio;
+                currentLulaPct = 100 - currentFlavioPct;
+
+                // Ajusta as odds inversamente proporcional de forma dinâmica
+                currentFlavioOdds = parseFloat((2.60 - (currentFlavioPct * 0.01)).toFixed(2));
+                currentLulaOdds = parseFloat((1.50 + ((currentFlavioPct - 45) * 0.02)).toFixed(2));
+
+                // Atualiza elementos visuais na tela
+                document.getElementById('pct-flavio').innerText = currentFlavioPct;
+                document.getElementById('pct-lula').innerText = currentLulaPct;
+
+                document.getElementById('bar-flavio').style.width = currentFlavioPct + '%';
+                document.getElementById('bar-lula').style.width = currentLulaPct + '%';
+
+                document.getElementById('odds-flavio-badge').innerText = 'Odds ' + currentFlavioOdds.toFixed(2) + 'x';
+                document.getElementById('odds-lula-badge').innerText = 'Odds ' + currentLulaOdds.toFixed(2) + 'x';
+
+                // Indicadores visuais de alta/baixa (setas)
+                const iconFlavio = document.getElementById('icon-flavio');
+                const iconLula = document.getElementById('icon-lula');
+                const trendMsg = document.getElementById('market-trend-msg');
+
+                if (delta > 0) {
+                    iconFlavio.className = "fa-solid fa-arrow-up text-[9px] text-emerald-400";
+                    iconLula.className = "fa-solid fa-arrow-down text-[9px] text-red-400";
+                    trendMsg.innerText = "⚡ Flávio em alta no mercado (+1.2%)";
+                } else {
+                    iconFlavio.className = "fa-solid fa-arrow-down text-[9px] text-red-400";
+                    iconLula.className = "fa-solid fa-arrow-up text-[9px] text-emerald-400";
+                    trendMsg.innerText = "⚡ Lula recupera pontos nas últimas parciais";
+                }
+
+                // Se o usuário já tiver clicado num candidato, atualiza o multiplicador ativo dele em tempo real
+                if (candidatoSelecionado === 'Flávio Bolsonaro') {
+                    multiplicadorAtual = currentFlavioOdds;
+                    calcularRetorno();
+                } else if (candidatoSelecionado === 'Lula') {
+                    multiplicadorAtual = currentLulaOdds;
+                    calcularRetorno();
+                }
+            }
+        }, 4500);
+
         function selecionarCandidato(nome, odds, chances) {
             candidatoSelecionado = nome;
-            multiplicadorAtual = odds;
             
-            document.getElementById('cand-flavio').classList.remove('selected');
-            document.getElementById('cand-lula').classList.remove('selected');
-
             if (nome === 'Flávio Bolsonaro') {
+                multiplicadorAtual = currentFlavioOdds;
                 document.getElementById('cand-flavio').classList.add('selected');
+                document.getElementById('cand-lula').classList.remove('selected');
             } else {
+                multiplicadorAtual = currentLulaOdds;
                 document.getElementById('cand-lula').classList.add('selected');
+                document.getElementById('cand-flavio').classList.remove('selected');
             }
 
             calcularRetorno();
