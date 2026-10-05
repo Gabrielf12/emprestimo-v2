@@ -1,222 +1,346 @@
 <?php
-// Ficheiro: index.php - Página Principal com Fotos e Gráfico Verde/Vermelho
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once 'db_config.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mercado Eleitoral 2026 - 2º Turno</title>
+    <title>Mercado Eleitoral 2026 - Palpites e Previsões</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        .bg-custom-header { background-color: #0f172a; }
         .card-custom {
             position: relative;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.98));
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.98));
             border: 1px solid rgba(56, 189, 248, 0.25);
             backdrop-filter: blur(12px);
             overflow: hidden;
         }
-        /* Gráfico de fundo ocupando o cartão inteiro */
+        /* Gráfico de Fundo Verde e Vermelho Estilo Trader */
         #bg-chart {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.20;
+            opacity: 0.18;
             pointer-events: none;
             z-index: 0;
         }
-        .candidate-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
+        .candidate-btn {
+            transition: all 0.25s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
-        .candidate-card.selected {
+        .candidate-btn.selected {
             border-color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.15);
+            background-color: rgba(59, 130, 246, 0.18);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        .value-chip {
+            transition: all 0.2s ease;
+        }
+        .value-chip.active {
+            background-color: #2563eb;
+            color: #ffffff;
+            border-color: #3b82f6;
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .live-pulse {
+            animation: pulse-subtle 2s infinite;
         }
     </style>
 </head>
-<body class="bg-slate-950 min-h-screen font-sans text-gray-100 flex flex-col items-center justify-center p-4">
+<body class="bg-slate-950 min-h-screen font-sans text-gray-100 flex flex-col justify-between">
 
-    <div class="text-center mb-6">
-        <h1 class="text-3xl font-extrabold tracking-tight text-white mb-1">Quem vence o 2º Turno em 2026?</h1>
-        <p class="text-xs text-slate-400">Dê seu palpite, apoie seu candidato e concorra a prêmios baseados nas cotações.</p>
-    </div>
-
-    <div class="card-custom rounded-2xl shadow-2xl p-6 w-full max-w-xl">
-        <!-- Canvas do Gráfico Verde e Vermelho ao Fundo -->
-        <canvas id="bg-chart"></canvas>
-
-        <div class="relative z-10">
-            <div class="flex justify-between items-center mb-4">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-300">1. Escolha seu palpite para vencedor:</span>
-                <span class="text-[10px] text-amber-400 font-semibold animate-pulse flex items-center gap-1">
-                    <i class="fa-solid fa-chart-line"></i> Mercado oscilando...
-                </span>
-            </div>
-
-            <!-- Candidatos -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                <!-- Flávio Bolsonaro -->
-                <div id="candidate-1" onclick="selectCandidate(1)" class="candidate-card bg-slate-900/90 border border-slate-700 rounded-xl p-3.5 relative">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Fl%C3%A1vio_Bolsonaro_em_2023.jpg/220px-Fl%C3%A1vio_Bolsonaro_em_2023.jpg" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-600">
-                            <span class="font-bold text-xs text-white">Flávio Bolsonaro</span>
-                        </div>
-                        <span id="odds-1" class="text-xs font-extrabold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">Odds 2.20x</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 flex justify-between mb-1">
-                        <span>Chances:</span>
-                        <span id="chance-text-1" class="font-bold text-slate-200">45%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div id="chance-bar-1" class="bg-blue-500 h-full transition-all duration-500" style="width: 45%;"></div>
-                    </div>
-                </div>
-
-                <!-- Lula -->
-                <div id="candidate-2" onclick="selectCandidate(2)" class="candidate-card candidate-card selected bg-slate-900/90 border border-blue-500 rounded-xl p-3.5 relative">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Luiz_In%C3%A1cio_Lula_da_Silva_in_2023_%28cropped%29.jpg/220px-Luiz_In%C3%A1cio_Lula_da_Silva_in_2023_%28cropped%29.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-600">
-                            <span class="font-bold text-xs text-white">Lula</span>
-                        </div>
-                        <span id="odds-2" class="text-xs font-extrabold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">Odds 1.80x</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 flex justify-between mb-1">
-                        <span>Chances:</span>
-                        <span id="chance-text-2" class="font-bold text-slate-200">55%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div id="chance-bar-2" class="bg-red-500 h-full transition-all duration-500" style="width: 55%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Valores -->
-            <div class="mb-5">
-                <span class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">2. Valor do Palpite (R$):</span>
-                <div class="grid grid-cols-4 gap-2 mb-3">
-                    <button type="button" onclick="setValue(50)" class="val-btn bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs transition border border-blue-500">R$ 50</button>
-                    <button type="button" onclick="setValue(100)" class="val-btn bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700">R$ 100</button>
-                    <button type="button" onclick="setValue(250)" class="val-btn bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700">R$ 250</button>
-                    <button type="button" onclick="setValue(500)" class="val-btn bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700">R$ 500</button>
-                </div>
-                <div class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 flex items-center">
-                    <span class="text-slate-400 mr-2 font-bold">R$</span>
-                    <span id="input-val-display" class="font-extrabold text-white text-sm">50</span>
-                </div>
-            </div>
-
-            <!-- Resumo Retorno -->
-            <div class="bg-slate-900/90 border border-slate-700/60 rounded-xl p-4 flex justify-between items-center mb-5">
-                <div>
-                    <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Retorno Potencial Estimado:</span>
-                    <span id="return-value" class="text-lg font-extrabold text-emerald-400">R$ 90,00</span>
-                </div>
-                <div class="text-right">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Multiplicador:</span>
-                    <span id="multiplier-value" class="text-sm font-extrabold text-white">1.80x</span>
-                </div>
-            </div>
-
-            <!-- Botão de Ação -->
-            <button onclick="prosseguirPagamento()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
-                <span>Confirmar Palpite e Continuar</span>
-                <i class="fa-solid fa-arrow-right text-[10px]"></i>
-            </button>
+    <!-- Topo -->
+    <header class="bg-custom-header text-white text-xs py-2.5 px-4 border-b border-slate-800 relative z-10">
+        <div class="max-w-xl mx-auto flex justify-between items-center">
+            <span class="font-semibold"><i class="fa-solid fa-chart-line text-emerald-400 mr-1.5"></i> Mercado Eleitoral 2026 (2º Turno)</span>
+            <span class="text-emerald-400 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Ao Vivo <span id="market-status" class="text-[9px] text-slate-400 font-normal">(-0.2s)</span>
+            </span>
         </div>
-    </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-xl w-full mx-auto p-4 my-auto space-y-4 relative z-10">
+
+        <!-- Banner / Título -->
+        <div class="text-center space-y-1 mb-1">
+            <h1 class="text-xl md:text-2xl font-extrabold text-white">Quem vence o 2º Turno em 2026?</h1>
+            <p class="text-xs text-slate-400">Dê seu palpite, apoie seu candidato e concorra a prêmios baseados nas cotações.</p>
+        </div>
+
+        <div class="card-custom rounded-2xl p-5 shadow-2xl space-y-5">
+            <!-- Canvas do Gráfico Verde e Vermelho ao Fundo -->
+            <canvas id="bg-chart"></canvas>
+
+            <div class="relative z-10 space-y-5">
+                <!-- Passo 1: Escolher Candidato + Odds e Chances -->
+                <div class="space-y-2.5">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                            1. Escolha seu Palpite para Vencedor:
+                        </label>
+                        <span id="market-trend-msg" class="text-[10px] text-amber-400 font-medium italic live-pulse">Mercado oscilando...</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        
+                        <!-- Flávio Bolsonaro -->
+                        <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro')" id="cand-flavio" class="candidate-btn p-3 rounded-xl bg-slate-900/90 text-left flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
+                                    <span class="text-xs font-bold text-white">Flávio Bolsonaro</span>
+                                </div>
+                                <span id="odds-flavio-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 2.20x</span>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[10px] text-slate-400">
+                                    <span>Chances:</span>
+                                    <span class="font-bold text-slate-200 flex items-center gap-1">
+                                        <span id="pct-flavio">45</span>%
+                                        <i id="icon-flavio" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
+                                    </span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div id="bar-flavio" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 45%;"></div>
+                                </div>
+                            </div>
+                        </button>
+
+                        <!-- Lula -->
+                        <button type="button" onclick="selecionarCandidato('Lula')" id="cand-lula" class="candidate-btn p-3 rounded-xl bg-slate-900/90 text-left flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
+                                    <span class="text-xs font-bold text-white">Lula</span>
+                                </div>
+                                <span id="odds-lula-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 1.80x</span>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[10px] text-slate-400">
+                                    <span>Chances:</span>
+                                    <span class="font-bold text-slate-200 flex items-center gap-1">
+                                        <span id="pct-lula">55</span>%
+                                        <i id="icon-lula" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
+                                    </span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 55%;"></div>
+                                </div>
+                            </div>
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- Passo 2: Valor do Palpite -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                        2. Valor do Palpite (R$):
+                    </label>
+
+                    <!-- Atalhos de Valores -->
+                    <div class="grid grid-cols-4 gap-2">
+                        <button type="button" onclick="definirValor(50, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800 active">R$ 50</button>
+                        <button type="button" onclick="definirValor(100, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 100</button>
+                        <button type="button" onclick="definirValor(250, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 250</button>
+                        <button type="button" onclick="definirValor(500, this)" class="value-chip py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 hover:bg-slate-800">R$ 500</button>
+                    </div>
+
+                    <!-- Input Personalizado -->
+                    <div class="relative mt-2">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-bold">R$</span>
+                        <input type="number" id="valorPersonalizado" value="50" placeholder="Outro valor (Ex: 100)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold" oninput="removerAtivoChips(); calcularRetorno();">
+                    </div>
+                </div>
+
+                <!-- Resumo do Prêmio Potencial -->
+                <div id="painelRetorno" class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Retorno Potencial Estimado:</span>
+                        <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 90,00</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Multiplicador:</span>
+                        <span id="textoOdds" class="text-sm font-bold text-blue-400">1.80x</span>
+                    </div>
+                </div>
+
+                <!-- Botão de Avançar -->
+                <button type="button" onclick="avancarCadastro()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 text-sm">
+                    <span>Confirmar Palpite e Continuar</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="text-center text-[10px] text-slate-500 py-3 relative z-10">
+        Plataforma interativa de simulação de cenários políticos e pesquisas eleitorais 2026.
+    </footer>
 
     <script>
-    let selectedCand = 2; // Padrão Lula
-    let currentVal = 50;
-    let odds1 = 2.20;
-    let odds2 = 1.80;
+        let candidatoSelecionado = "Lula";
+        let multiplicadorAtual = 1.80;
 
-    function selectCandidate(id) {
-        selectedCand = id;
-        document.getElementById('candidate-1').classList.toggle('selected', id === 1);
-        document.getElementById('candidate-1').style.borderColor = id === 1 ? '#3b82f6' : 'rgba(51, 65, 85, 1)';
-        
-        document.getElementById('candidate-2').classList.toggle('selected', id === 2);
-        document.getElementById('candidate-2').style.borderColor = id === 2 ? '#3b82f6' : 'rgba(51, 65, 85, 1)';
-        
-        atualizarRetorno();
-    }
+        let currentFlavioPct = 45;
+        let currentLulaPct = 55;
+        let currentFlavioOdds = 2.20;
+        let currentLulaOdds = 1.80;
 
-    function setValue(val) {
-        currentVal = val;
-        document.getElementById('input-val-display').innerText = val;
-        
-        let buttons = document.querySelectorAll('.val-btn');
-        buttons.forEach(btn => {
-            if(btn.innerText.includes(val)) {
-                btn.className = "val-btn bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs transition border border-blue-500";
-            } else {
-                btn.className = "val-btn bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700";
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnLula = document.getElementById('cand-lula');
+            if (btnLula) btnLula.classList.add('selected');
+            calcularRetorno();
         });
-        atualizarRetorno();
-    }
 
-    function atualizarRetorno() {
-        let mult = (selectedCand === 1) ? odds1 : odds2;
-        let retorno = currentVal * mult;
-        document.getElementById('multiplier-value').innerText = mult.toFixed(2) + 'x';
-        document.getElementById('return-value').innerText = 'R$ ' + retorno.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
+        function selecionarCandidato(nome) {
+            candidatoSelecionado = nome;
+            const btnFlavio = document.getElementById('cand-flavio');
+            const btnLula = document.getElementById('cand-lula');
+            
+            if (nome === 'Flávio Bolsonaro') {
+                multiplicadorAtual = currentFlavioOdds;
+                if (btnFlavio) btnFlavio.classList.add('selected');
+                if (btnLula) btnLula.classList.remove('selected');
+            } else {
+                multiplicadorAtual = currentLulaOdds;
+                if (btnLula) btnLula.classList.add('selected');
+                if (btnFlavio) btnFlavio.classList.remove('selected');
+            }
 
-    // SIMULAÇÃO DE OSCILAÇÃO EM TEMPO REAL
-    setInterval(() => {
-        let variacao1 = (Math.random() * 0.04 - 0.02);
-        odds1 = Math.max(1.10, parseFloat((odds1 + variacao1).toFixed(2)));
-        odds2 = Math.max(1.10, parseFloat((2.00 - (odds1 - 1.5)).toFixed(2)));
+            calcularRetorno();
+        }
 
-        let chance2 = Math.min(75, Math.max(25, Math.round(55 + (Math.random() * 4 - 2))));
-        let chance1 = 100 - chance2;
+        function definirValor(valor, btnElement) {
+            const inputVal = document.getElementById('valorPersonalizado');
+            if (inputVal) inputVal.value = valor;
 
-        document.getElementById('odds-1').innerText = 'Odds ' + odds1.toFixed(2) + 'x';
-        document.getElementById('odds-2').innerText = 'Odds ' + odds2.toFixed(2) + 'x';
+            let chips = document.querySelectorAll('.value-chip');
+            chips.forEach(chip => chip.classList.remove('active'));
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
 
-        document.getElementById('chance-text-1').innerText = chance1 + '%';
-        document.getElementById('chance-bar-1').style.width = chance1 + '%';
+            calcularRetorno();
+        }
 
-        document.getElementById('chance-text-2').innerText = chance2 + '%';
-        document.getElementById('chance-bar-2').style.width = chance2 + '%';
+        function removerAtivoChips() {
+            let chips = document.querySelectorAll('.value-chip');
+            chips.forEach(chip => chip.classList.remove('active'));
+        }
 
-        atualizarRetorno();
-    }, 4000);
+        function calcularRetorno() {
+            const inputVal = document.getElementById('valorPersonalizado');
+            const painel = document.getElementById('painelRetorno');
+            if (!inputVal || !painel) return;
 
-    // Gráfico de Fundo Trader (Verde e Vermelho)
-    const canvas = document.getElementById('bg-chart');
-    const ctx = canvas.getContext('2d');
-    function resizeCanvas() {
-        canvas.width = canvas.parentElement.offsetWidth;
-        canvas.height = canvas.parentElement.offsetHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+            let valorInput = parseFloat(inputVal.value);
 
-    let points = [];
-    for(let i=0; i<35; i++) points.push({ y: Math.random() * canvas.height, bullish: Math.random() > 0.5 });
+            if (!candidatoSelecionado || isNaN(valorInput) || valorInput <= 0) {
+                painel.classList.add('hidden');
+                return;
+            }
 
-    function drawChart() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        points.shift();
-        let lastY = points[points.length - 1] ? points[points.length - 1].y : canvas.height / 2;
-        let newY = Math.max(20, Math.min(canvas.height - 20, lastY + (Math.random() * 60 - 30)));
-        let isBullish = newY < lastY; // Subida = verde, Descida = vermelho
-        points.push({ y: newY, bullish: isBullish });
+            let premioTotal = valorInput * multiplicadorAtual;
+            
+            const txtRetorno = document.getElementById('textoRetorno');
+            const txtOdds = document.getElementById('textoOdds');
+            
+            if (txtRetorno) txtRetorno.innerText = "R$ " + premioTotal.toFixed(2).replace('.', ',');
+            if (txtOdds) txtOdds.innerText = multiplicadorAtual.toFixed(2) + "x";
+            painel.classList.remove('hidden');
+        }
 
-        let step = canvas.width / (points.length - 1);
+        // SIMULAÇÃO DE OSCILAÇÃO AO VIVO DAS ODDS E CHANCES
+        setInterval(() => {
+            let variacao = (Math.random() * 0.04 - 0.02);
+            currentFlavioOdds = Math.max(1.10, parseFloat((currentFlavioOdds + variacao).toFixed(2)));
+            currentLulaOdds = Math.max(1.10, parseFloat((2.00 - (currentFlavioOdds - 1.5)).toFixed(2)));
 
-        // Desenhar segmentos de linha coloridos (verde se sobe, vermelho se desce)
-        for(let i = 0; i < points.length -
+            currentLulaPct = Math.min(75, Math.max(25, Math.round(55 + (Math.random() * 4 - 2))));
+            currentFlavioPct = 100 - currentLulaPct;
+
+            // Atualiza HTML Flávio
+            const badgeFlavio = document.getElementById('odds-flavio-badge');
+            const pctFlavio = document.getElementById('pct-flavio');
+            const barFlavio = document.getElementById('bar-flavio');
+            if(badgeFlavio) badgeFlavio.innerText = 'Odds ' + currentFlavioOdds.toFixed(2) + 'x';
+            if(pctFlavio) pctFlavio.innerText = currentFlavioPct;
+            if(barFlavio) barFlavio.style.width = currentFlavioPct + '%';
+
+            // Atualiza HTML Lula
+            const badgeLula = document.getElementById('odds-lula-badge');
+            const pctLula = document.getElementById('pct-lula');
+            const barLula = document.getElementById('bar-lula');
+            if(badgeLula) badgeLula.innerText = 'Odds ' + currentLulaOdds.toFixed(2) + 'x';
+            if(pctLula) pctLula.innerText = currentLulaPct;
+            if(barLula) barLula.style.width = currentLulaPct + '%';
+
+            // Atualiza multiplicador se selecionado
+            if (candidatoSelecionado === 'Flávio Bolsonaro') {
+                multiplicadorAtual = currentFlavioOdds;
+            } else {
+                multiplicadorAtual = currentLulaOdds;
+            }
+            calcularRetorno();
+        }, 4000);
+
+        // Gráfico de Fundo Trader (Verde e Vermelho)
+        const canvas = document.getElementById('bg-chart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            function resizeCanvas() {
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            let points = [];
+            for(let i=0; i<35; i++) points.push({ y: Math.random() * canvas.height, bullish: Math.random() > 0.5 });
+
+            function drawChart() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                points.shift();
+                let lastY = points[points.length - 1] ? points[points.length - 1].y : canvas.height / 2;
+                let newY = Math.max(20, Math.min(canvas.height - 20, lastY + (Math.random() * 60 - 30)));
+                let isBullish = newY < lastY;
+                points.push({ y: newY, bullish: isBullish });
+
+                let step = canvas.width / (points.length - 1);
+
+                for(let i = 0; i < points.length - 1; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(i * step, points[i].y);
+                    ctx.lineTo((i + 1) * step, points[i+1].y);
+                    ctx.strokeStyle = points[i+1].bullish ? '#22c55e' : '#ef4444'; // Verde ou Vermelho
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.02)';
+                ctx.fill();
+            }
+            setInterval(drawChart, 1200);
+        }
+
+        function avancarCadastro() {
+            const inputVal = document.getElementById('valor
