@@ -9,23 +9,24 @@ require_once 'db_config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apoio Político 2026 - Contribuição de Campanha</title>
+    <title>Mercado Eleitoral 2026 - Palpites e Previsões</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .bg-custom-header { background-color: #0f172a; }
         .card-custom {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.98));
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            backdrop-filter: blur(12px);
         }
         .candidate-btn {
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             border: 2px solid rgba(255, 255, 255, 0.1);
         }
         .candidate-btn.selected {
             border-color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.15);
+            background-color: rgba(59, 130, 246, 0.18);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
         .value-chip {
             transition: all 0.2s ease;
@@ -42,8 +43,8 @@ require_once 'db_config.php';
     <!-- Topo -->
     <header class="bg-custom-header text-white text-xs py-2.5 px-4 border-b border-slate-800">
         <div class="max-w-xl mx-auto flex justify-between items-center">
-            <span class="font-semibold"><i class="fa-solid fa-flag text-blue-500 mr-1.5"></i> Campanha Eleitoral 2026</span>
-            <span class="text-slate-400">Doação Segura</span>
+            <span class="font-semibold"><i class="fa-solid fa-chart-line text-emerald-400 mr-1.5"></i> Mercado Eleitoral 2026 (2º Turno)</span>
+            <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i> Ao Vivo</span>
         </div>
     </header>
 
@@ -51,45 +52,62 @@ require_once 'db_config.php';
     <main class="max-w-xl w-full mx-auto p-4 my-auto space-y-4">
 
         <!-- Banner / Título -->
-        <div class="text-center space-y-1 mb-2">
-            <h1 class="text-xl md:text-2xl font-extrabold text-white">Fortaleça Nossa Causa</h1>
-            <p class="text-xs text-slate-400">Escolha o candidato que você apoia e defina o valor da sua contribuição.</p>
+        <div class="text-center space-y-1 mb-1">
+            <h1 class="text-xl md:text-2xl font-extrabold text-white">Quem vence o 2º Turno em 2026?</h1>
+            <p class="text-xs text-slate-400">Dê seu palpite, apoie seu candidato e concorra a prêmios baseados nas cotações.</p>
         </div>
 
-        <div class="card-custom rounded-2xl p-5 shadow-xl space-y-5">
+        <div class="card-custom rounded-2xl p-5 shadow-2xl space-y-5">
 
-            <!-- Passo 1: Escolher Candidato -->
-            <div class="space-y-2">
+            <!-- Passo 1: Escolher Candidato + Odds e Chances -->
+            <div class="space-y-2.5">
                 <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    1. Escolha o Candidato / Movimento:
+                    1. Escolha seu Palpite para Vencedor:
                 </label>
+                
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro')" id="cand-flavio" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
-                            <i class="fa-solid fa-user-tie"></i>
+                    
+                    <!-- Flávio Bolsonaro -->
+                    <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro', 2.20, 45)" id="cand-flavio" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-white">Flávio Bolsonaro</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 2.20x</span>
                         </div>
-                        <div>
-                            <span class="text-xs font-bold text-white block">Flávio Bolsonaro</span>
-                            <span class="text-[10px] text-slate-400">Direita / Conservador</span>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>Chances:</span>
+                                <span class="font-bold text-slate-200">45%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-blue-500 h-full rounded-full" style="width: 45%;"></div>
+                            </div>
                         </div>
                     </button>
 
-                    <button type="button" onclick="selecionarCandidato('Lula')" id="cand-lula" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-red-600/20 text-red-400 flex items-center justify-center font-bold text-sm">
-                            <i class="fa-solid fa-user-tie"></i>
+                    <!-- Lula -->
+                    <button type="button" onclick="selecionarCandidato('Lula', 1.80, 55)" id="cand-lula" class="candidate-btn p-3 rounded-xl bg-slate-900/80 text-left flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-white">Lula</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">Odds 1.80x</span>
                         </div>
-                        <div>
-                            <span class="text-xs font-bold text-white block">Lula</span>
-                            <span class="text-[10px] text-slate-400">Esquerda / Progressista</span>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>Chances:</span>
+                                <span class="font-bold text-slate-200">55%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-red-500 h-full rounded-full" style="width: 55%;"></div>
+                            </div>
                         </div>
                     </button>
+
                 </div>
             </div>
 
-            <!-- Passo 2: Escolher ou Digitar Valor -->
+            <!-- Passo 2: Valor do Palpite -->
             <div class="space-y-2">
                 <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    2. Valor da Contribuição (R$):
+                    2. Valor do Palpite (R$):
                 </label>
 
                 <!-- Atalhos de Valores -->
@@ -103,13 +121,25 @@ require_once 'db_config.php';
                 <!-- Input Personalizado -->
                 <div class="relative mt-2">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-bold">R$</span>
-                    <input type="number" id="valorPersonalizado" placeholder="Outro valor (Ex: 1000)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold" oninput="limparChips()">
+                    <input type="number" id="valorPersonalizado" placeholder="Outro valor (Ex: 100)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold" oninput="calcularRetorno()">
+                </div>
+            </div>
+
+            <!-- Resumo do Prêmio Potencial -->
+            <div id="painelRetorno" class="hidden bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs">
+                <div>
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Retorno Potencial Estimado:</span>
+                    <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 0,00</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Multiplicador:</span>
+                    <span id="textoOdds" class="text-sm font-bold text-blue-400">-</span>
                 </div>
             </div>
 
             <!-- Botão de Avançar -->
             <button type="button" onclick="avancarCadastro()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 text-sm">
-                <span>Continuar para Dados de Apoio</span>
+                <span>Confirmar Palpite e Continuar</span>
                 <i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
 
@@ -119,17 +149,17 @@ require_once 'db_config.php';
 
     <!-- Rodapé -->
     <footer class="text-center text-[10px] text-slate-500 py-3">
-        Plataforma oficial de engajamento político e doações regulamentadas.
+        Plataforma interativa de simulação de cenários políticos e pesquisas eleitorais 2026.
     </footer>
 
     <script>
         let candidatoSelecionado = "";
-        let valorSelecionado = "";
+        let multiplicadorAtual = 0;
 
-        function selecionarCandidato(nome) {
+        function selecionarCandidato(nome, odds, chances) {
             candidatoSelecionado = nome;
+            multiplicadorAtual = odds;
             
-            // Atualiza classes visuais dos botões de candidato
             document.getElementById('cand-flavio').classList.remove('selected');
             document.getElementById('cand-lula').classList.remove('selected');
 
@@ -138,34 +168,61 @@ require_once 'db_config.php';
             } else {
                 document.getElementById('cand-lula').classList.add('selected');
             }
+
+            calcularRetorno();
         }
 
         function definirValor(valor) {
-            valorSelecionado = valor;
             document.getElementById('valorPersonalizado').value = valor;
 
-            // Remove classe ativa de todos os chips e adiciona no clicado
             let chips = document.querySelectorAll('.value-chip');
             chips.forEach(chip => chip.classList.remove('active'));
             event.target.classList.add('active');
+
+            calcularRetorno();
         }
 
-        function limparChips() {
-            // Se o usuário digitar manualmente, remove a seleção dos chips rápidos
-            let chips = document.querySelectorAll('.value-chip');
-            chips.forEach(chip => chip.classList.remove('active'));
-            valorSelecionado = document.getElementById('valorPersonalizado').value;
+        function calcularRetorno() {
+            let valorInput = parseFloat(document.getElementById('valorPersonalizado').value);
+            let painel = document.getElementById('painelRetorno');
+
+            if (!candidatoSelecionado || !valorInput || valorInput <= 0) {
+                painel.classList.add('hidden');
+                return;
+            }
+
+            let premioTotal = valorInput * multiplicadorAtual;
+            
+            document.getElementById('textoRetorno').innerText = "R$ " + premioTotal.toFixed(2).replace('.', ',');
+            document.getElementById('textoOdds').innerText = multiplicadorAtual.toFixed(2) + "x";
+            painel.classList.remove('hidden');
         }
 
         function avancarCadastro() {
             let valorFinal = document.getElementById('valorPersonalizado').value;
 
             if (!candidatoSelecionado) {
-                alert("Por favor, selecione um candidato para apoiar.");
+                alert("Por favor, selecione um candidato para o seu palpite.");
                 return;
             }
 
             if (!valorFinal || valorFinal <= 0) {
-                alert("Por favor, informe ou selecione um valor de contribuição válido.");
+                alert("Por favor, informe ou selecione o valor do palpite.");
                 return;
             }
+
+            let premioEstimado = (valorFinal * multiplicadorAtual).toFixed(2);
+            let servicoTexto = "Palpite 2º Turno: " + candidatoSelecionado + " (Valor: R$ " + valorFinal + " | Retorno Est: R$ " + premioEstimado + ")";
+
+            // Salva no localStorage para a página seguinte pegar
+            localStorage.setItem('servico_escolhido', servicoTexto);
+            localStorage.setItem('valor_emprestimo', valorFinal);
+            localStorage.setItem('candidato_escolhido', candidatoSelecionado);
+            localStorage.setItem('retorno_estimado', premioEstimado);
+
+            // Redireciona para o cadastro
+            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(servicoTexto);
+        }
+    </script>
+</body>
+</html>
