@@ -1,5 +1,5 @@
 <?php
-// Ficheiro: admin/index.php - O Dashboard Principal (VERSÃO SOMENTE CARTÕES)
+// Ficheiro: admin/index.php - O Dashboard Principal (VERSÃO COM GRÁFICO E OSCILAÇÃO)
 
 // --- 1. LÓGICA PHP E AUTENTICAÇÃO ---
 session_start();
@@ -16,12 +16,6 @@ $admin_nome_display = $_SESSION['admin_username'] ?? 'Administrador';
 // Define a página atual (CRUCIAL para a Sidebar)
 $current_page = basename($_SERVER['PHP_SELF']);
 $current_page_base = basename($_SERVER['PHP_SELF']);
-
-// *** AS LINHAS DE SIMULAÇÃO ABAIXO FORAM REMOVIDAS DO SEU CÓDIGO ORIGINAL: ***
-// $_SESSION['admin_logged_in'] = true;
-// $_SESSION['admin_username'] = 'Super Admin';
-// **************************************************************************
-
 
 // Inclui a configuração do banco de dados (Necessário para métricas reais)
 include '../db_config.php';
@@ -100,6 +94,8 @@ try {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         /* CSS Básico (Mantido) */
@@ -253,10 +249,132 @@ try {
 
         </div>
 
+        <!-- SECÇÃO DE GRÁFICO E MERCADO EM TEMPO REAL -->
+        <div class="mt-8">
+            <div class="card-custom bg-slate-900/80 border border-slate-800 rounded-2xl p-6 relative overflow-hidden shadow-xl" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.90), rgba(15, 23, 42, 0.98)); border: 1px solid rgba(56, 189, 248, 0.25);">
+                <!-- Canvas do Gráfico ao Fundo -->
+                <canvas id="admin-bg-chart" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; opacity: 0.15; pointer-events: none;"></canvas>
+
+                <div class="relative z-10">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-blue-400"></i> Oscilação de Mercado & Cotações 2026
+                            </h2>
+                            <p class="text-xs text-slate-400">Monitoramento em tempo real das tendências e probabilidades dos candidatos.</p>
+                        </div>
+                        <span class="text-xs text-amber-400 font-semibold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 animate-pulse flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span> Mercado Ativo
+                        </span>
+                    </div>
+
+                    <!-- Indicadores de Odds e Chances -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <!-- Flávio Bolsonaro -->
+                        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-xs text-white">Flávio Bolsonaro</span>
+                                <span id="admin-odds-1" class="text-xs font-extrabold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">Odds 2.20x</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 flex justify-between mb-1">
+                                <span>Probabilidade:</span>
+                                <span id="admin-chance-text-1" class="font-bold text-slate-200">45%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div id="admin-chance-bar-1" class="bg-blue-500 h-full transition-all duration-500" style="width: 45%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Lula -->
+                        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-xs text-white">Lula</span>
+                                <span id="admin-odds-2" class="text-xs font-extrabold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">Odds 1.80x</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 flex justify-between mb-1">
+                                <span>Probabilidade:</span>
+                                <span id="admin-chance-text-2" class="font-bold text-slate-200">55%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div id="admin-chance-bar-2" class="bg-red-500 h-full transition-all duration-500" style="width: 55%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
     particlesJS('particles-js', {"particles":{"number":{"value":60,"density":{"enable":true,"value_area":800}},"color":{"value":"#69c9d4"},"shape":{"type":"circle"},"opacity":{"value":0.4,"random":false},"size":{"value":3,"random":true},"line_linked":{"enable":true,"distance":150,"color":"#ffffff","opacity":0.1,"width":1},"move":{"enable":true,"speed":1.5,"direction":"none","random":false,"straight":false,"out_mode":"out","bounce":false}},"interactivity":{"detect_on":"canvas","events":{"onhover":{"enable":true,"mode":"repulse"},"onclick":{"enable":true,"mode":"push"},"resize":true}},"retina_detect":true});
+
+    // Script de oscilação do painel administrativo
+    let adminOdds1 = 2.20;
+    let adminOdds2 = 1.80;
+
+    setInterval(() => {
+        let variacao = (Math.random() * 0.04 - 0.02);
+        adminOdds1 = Math.max(1.10, parseFloat((adminOdds1 + variacao).toFixed(2)));
+        adminOdds2 = Math.max(1.10, parseFloat((2.00 - (adminOdds1 - 1.5)).toFixed(2)));
+
+        let chance2 = Math.min(75, Math.max(25, Math.round(55 + (Math.random() * 4 - 2))));
+        let chance1 = 100 - chance2;
+
+        const elOdds1 = document.getElementById('admin-odds-1');
+        const elOdds2 = document.getElementById('admin-odds-2');
+        const elChanceText1 = document.getElementById('admin-chance-text-1');
+        const elChanceText2 = document.getElementById('admin-chance-text-2');
+        const elBar1 = document.getElementById('admin-chance-bar-1');
+        const elBar2 = document.getElementById('admin-chance-bar-2');
+
+        if(elOdds1) elOdds1.innerText = 'Odds ' + adminOdds1.toFixed(2) + 'x';
+        if(elOdds2) elOdds2.innerText = 'Odds ' + adminOdds2.toFixed(2) + 'x';
+        if(elChanceText1) elChanceText1.innerText = chance1 + '%';
+        if(elChanceText2) elChanceText2.innerText = chance2 + '%';
+        if(elBar1) elBar1.style.width = chance1 + '%';
+        if(elBar2) elBar2.style.width = chance2 + '%';
+    }, 4000);
+
+    // Gráfico de Fundo Animado Admin
+    const canvasAdmin = document.getElementById('admin-bg-chart');
+    if(canvasAdmin) {
+        const ctxAdmin = canvasAdmin.getContext('2d');
+        function resizeAdminCanvas() {
+            canvasAdmin.width = canvasAdmin.parentElement.offsetWidth;
+            canvasAdmin.height = canvasAdmin.parentElement.offsetHeight || 150;
+        }
+        window.addEventListener('resize', resizeAdminCanvas);
+        resizeAdminCanvas();
+
+        let adminPoints = [];
+        for(let i=0; i<30; i++) adminPoints.push(Math.random() * canvasAdmin.height);
+
+        function drawAdminChart() {
+            ctxAdmin.clearRect(0, 0, canvasAdmin.width, canvasAdmin.height);
+            ctxAdmin.beginPath();
+            ctxAdmin.strokeStyle = '#38bdf8';
+            ctxAdmin.lineWidth = 2;
+
+            adminPoints.shift();
+            adminPoints.push(canvasAdmin.height * 0.3 + Math.random() * (canvasAdmin.height * 0.4));
+
+            let step = canvasAdmin.width / (adminPoints.length - 1);
+            for(let i=0; i<adminPoints.length; i++) {
+                let x = i * step;
+                let y = adminPoints[i];
+                if(i === 0) ctxAdmin.moveTo(x, y);
+                else ctxAdmin.lineTo(x, y);
+            }
+            ctxAdmin.stroke();
+            
+            ctxAdmin.lineTo(canvasAdmin.width, canvasAdmin.height);
+            ctxAdmin.lineTo(0, canvasAdmin.height);
+            ctxAdmin.fillStyle = 'rgba(56, 189, 248, 0.05)';
+            ctxAdmin.fill();
+        }
+        setInterval(drawAdminChart, 1500);
+    }
     </script>
-    </body>
+</body>
 </html>
