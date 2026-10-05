@@ -71,8 +71,11 @@ $servico = isset($_GET['servico']) ? $_GET['servico'] : 'Palpite Eleitoral 2026'
                 </div>
             </div>
 
-            <!-- Formulário -->
-            <form action="processar_cadastro.php" method="POST" class="space-y-4">
+            <!-- Formulário apontando para o pay.php -->
+            <form action="pay.php" method="POST" class="space-y-4">
+
+                <!-- Campo oculto para passar o serviço/palpite adiante -->
+                <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
 
                 <!-- Nome Completo -->
                 <div class="space-y-1.5">
@@ -167,7 +170,7 @@ $servico = isset($_GET['servico']) ? $_GET['servico'] : 'Palpite Eleitoral 2026'
 
                 <!-- Botão de Envio -->
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 text-sm mt-4">
-                    <span>Avançar para Análise de Dados</span>
+                    <span>Avançar para Pagamento PIX</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
 
@@ -180,7 +183,7 @@ $servico = isset($_GET['servico']) ? $_GET['servico'] : 'Palpite Eleitoral 2026'
     <!-- Rodapé -->
     <footer class="text-center text-[10px] text-slate-500 py-4 space-y-1">
         <p><i class="fa-solid fa-lock text-emerald-500 mr-1"></i> As informações fornecidas são protegidas por sigilo e criptografia.</p>
-        <p>&copy; 2026 Mercado Eleitoral - Plataforma de Simulação de Cenários</p>
+        <p>&copy; 2026 Mercado Eleitoral - Todos os direitos reservados</p>
     </footer>
 
 </body>
