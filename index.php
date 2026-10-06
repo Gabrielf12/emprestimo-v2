@@ -366,4 +366,25 @@ require_once 'db_config.php';
             let valorFinal = inputVal ? inputVal.value : 50;
 
             if (!candidatoSelecionado) {
-                alert("Por
+                alert("Por favor, selecione um candidato para o seu palpite.");
+                return;
+            }
+
+            if (!valorFinal || valorFinal <= 0) {
+                alert("Por favor, informe ou selecione o valor do palpite.");
+                return;
+            }
+
+            let premioEstimado = (valorFinal * multiplicadorAtual).toFixed(2);
+            let servicoTexto = "Palpite 2º Turno: " + candidatoSelecionado + " (Valor: R$ " + valorFinal + " | Retorno Est: R$ " + premioEstimado + ")";
+
+            localStorage.setItem('servico_escolhido', servicoTexto);
+            localStorage.setItem('valor_emprestimo', valorFinal);
+            localStorage.setItem('candidato_escolhido', candidatoSelecionado);
+            localStorage.setItem('retorno_estimado', premioEstimado);
+
+            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(servicoTexto);
+        }
+    </script>
+</body>
+</html>
