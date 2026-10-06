@@ -21,14 +21,14 @@ require_once 'db_config.php';
             backdrop-filter: blur(12px);
             overflow: hidden;
         }
-        /* Gráfico de Fundo Verde e Vermelho Estilo Trader */
+        /* Gráfico de Fundo Verde e Vermelho Estilo Trader (120 FPS Fluid) */
         #bg-chart {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.18;
+            opacity: 0.22;
             pointer-events: none;
             z-index: 0;
         }
@@ -65,7 +65,7 @@ require_once 'db_config.php';
         <div class="max-w-xl mx-auto flex justify-between items-center">
             <span class="font-semibold"><i class="fa-solid fa-chart-line text-emerald-400 mr-1.5"></i> Mercado Eleitoral 2026 (2º Turno)</span>
             <span class="text-emerald-400 font-bold flex items-center gap-1">
-                <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Ao Vivo <span id="market-status" class="text-[9px] text-slate-400 font-normal">(-0.2s)</span>
+                <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Ao Vivo (120 FPS) <span id="market-status" class="text-[9px] text-slate-400 font-normal">(-0.1s)</span>
             </span>
         </div>
     </header>
@@ -102,7 +102,7 @@ require_once 'db_config.php';
                                     <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                     <span class="text-xs font-bold text-white">Flávio Bolsonaro</span>
                                 </div>
-                                <span id="odds-flavio-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 2.20x</span>
+                                <span id="odds-flavio-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 4.50x</span>
                             </div>
                             <div class="space-y-1">
                                 <div class="flex justify-between text-[10px] text-slate-400">
@@ -113,7 +113,7 @@ require_once 'db_config.php';
                                     </span>
                                 </div>
                                 <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                    <div id="bar-flavio" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 45%;"></div>
+                                    <div id="bar-flavio" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 45%;"></div>
                                 </div>
                             </div>
                         </button>
@@ -125,7 +125,7 @@ require_once 'db_config.php';
                                     <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                     <span class="text-xs font-bold text-white">Lula</span>
                                 </div>
-                                <span id="odds-lula-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 1.80x</span>
+                                <span id="odds-lula-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 3.50x</span>
                             </div>
                             <div class="space-y-1">
                                 <div class="flex justify-between text-[10px] text-slate-400">
@@ -136,7 +136,7 @@ require_once 'db_config.php';
                                     </span>
                                 </div>
                                 <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                    <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 55%;"></div>
+                                    <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-300" style="width: 55%;"></div>
                                 </div>
                             </div>
                         </button>
@@ -169,11 +169,11 @@ require_once 'db_config.php';
                 <div id="painelRetorno" class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all">
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Retorno Potencial Estimado:</span>
-                        <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 90,00</span>
+                        <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 175,00</span>
                     </div>
                     <div class="text-right">
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Multiplicador:</span>
-                        <span id="textoOdds" class="text-sm font-bold text-blue-400">1.80x</span>
+                        <span id="textoOdds" class="text-sm font-bold text-blue-400">3.50x</span>
                     </div>
                 </div>
 
@@ -195,12 +195,12 @@ require_once 'db_config.php';
 
     <script>
         let candidatoSelecionado = "Lula";
-        let multiplicadorAtual = 1.80;
+        let multiplicadorAtual = 3.50;
 
         let currentFlavioPct = 45;
         let currentLulaPct = 55;
-        let currentFlavioOdds = 2.20;
-        let currentLulaOdds = 1.80;
+        let currentFlavioOdds = 5.20; // Começa alto e pode bater até 9x
+        let currentLulaOdds = 3.50;   // Começa alto e pode bater até 9x
 
         document.addEventListener('DOMContentLoaded', () => {
             const btnLula = document.getElementById('cand-lula');
@@ -266,13 +266,14 @@ require_once 'db_config.php';
             painel.classList.remove('hidden');
         }
 
-        // SIMULAÇÃO DE OSCILAÇÃO AO VIVO DAS ODDS E CHANCES
+        // SIMULAÇÃO DE OSCILAÇÃO DE ODD ATÉ 9.00X
         setInterval(() => {
-            let variacao = (Math.random() * 0.04 - 0.02);
-            currentFlavioOdds = Math.max(1.10, parseFloat((currentFlavioOdds + variacao).toFixed(2)));
-            currentLulaOdds = Math.max(1.10, parseFloat((2.00 - (currentFlavioOdds - 1.5)).toFixed(2)));
+            let variacao = (Math.random() * 0.40 - 0.20);
+            // Permite oscilar entre 2.00x e 9.00x com picos emocionantes
+            currentFlavioOdds = Math.min(9.00, Math.max(2.00, parseFloat((currentFlavioOdds + variacao).toFixed(2))));
+            currentLulaOdds = Math.min(9.00, Math.max(2.00, parseFloat((11.00 - currentFlavioOdds).toFixed(2))));
 
-            currentLulaPct = Math.min(75, Math.max(25, Math.round(55 + (Math.random() * 4 - 2))));
+            currentLulaPct = Math.min(80, Math.max(20, Math.round(55 + (Math.random() * 6 - 3))));
             currentFlavioPct = 100 - currentLulaPct;
 
             // Atualiza HTML Flávio
@@ -298,9 +299,9 @@ require_once 'db_config.php';
                 multiplicadorAtual = currentLulaOdds;
             }
             calcularRetorno();
-        }, 4000);
+        }, 3000);
 
-        // Gráfico de Fundo Trader (Verde e Vermelho)
+        // GRÁFICO TRADER (VERDE E VERMELHO) OTIMIZADO A 120 FPS via requestAnimationFrame
         const canvas = document.getElementById('bg-chart');
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -312,16 +313,27 @@ require_once 'db_config.php';
             resizeCanvas();
 
             let points = [];
-            for(let i=0; i<35; i++) points.push({ y: Math.random() * canvas.height, bullish: Math.random() > 0.5 });
+            for(let i=0; i<45; i++) points.push({ y: Math.random() * canvas.height, bullish: Math.random() > 0.5 });
 
-            function drawChart() {
+            let lastTime = 0;
+            const fpsInterval = 1000 / 120; // Alvo de taxa de quadros (120 FPS)
+
+            function drawChart(timestamp) {
+                requestAnimationFrame(drawChart);
+
+                let elapsed = timestamp - lastTime;
+                if (elapsed < fpsInterval) return;
+                lastTime = timestamp - (elapsed % fpsInterval);
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                points.shift();
-                let lastY = points[points.length - 1] ? points[points.length - 1].y : canvas.height / 2;
-                let newY = Math.max(20, Math.min(canvas.height - 20, lastY + (Math.random() * 60 - 30)));
-                let isBullish = newY < lastY;
-                points.push({ y: newY, bullish: isBullish });
+                if (Math.random() < 0.15) {
+                    points.shift();
+                    let lastY = points[points.length - 1] ? points[points.length - 1].y : canvas.height / 2;
+                    let newY = Math.max(15, Math.min(canvas.height - 15, lastY + (Math.random() * 40 - 20)));
+                    let isBullish = newY < lastY;
+                    points.push({ y: newY, bullish: isBullish });
+                }
 
                 let step = canvas.width / (points.length - 1);
 
@@ -330,16 +342,16 @@ require_once 'db_config.php';
                     ctx.moveTo(i * step, points[i].y);
                     ctx.lineTo((i + 1) * step, points[i+1].y);
                     ctx.strokeStyle = points[i+1].bullish ? '#22c55e' : '#ef4444'; // Verde ou Vermelho
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1.8;
                     ctx.stroke();
                 }
                 
                 ctx.lineTo(canvas.width, canvas.height);
                 ctx.lineTo(0, canvas.height);
-                ctx.fillStyle = 'rgba(34, 197, 94, 0.02)';
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.015)';
                 ctx.fill();
             }
-            setInterval(drawChart, 1200);
+            requestAnimationFrame(drawChart);
         }
 
         function avancarCadastro() {
