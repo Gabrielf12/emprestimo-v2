@@ -102,18 +102,18 @@ require_once 'db_config.php';
                                     <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                     <span class="text-xs font-bold text-white">Flávio Bolsonaro</span>
                                 </div>
-                                <span id="odds-flavio-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 4.50x</span>
+                                <span id="odds-flavio-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 4.20x</span>
                             </div>
                             <div class="space-y-1">
                                 <div class="flex justify-between text-[10px] text-slate-400">
                                     <span>Chances:</span>
                                     <span class="font-bold text-slate-200 flex items-center gap-1">
-                                        <span id="pct-flavio">45</span>%
+                                        <span id="pct-flavio">50</span>%
                                         <i id="icon-flavio" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
                                     </span>
                                 </div>
                                 <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                    <div id="bar-flavio" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 45%;"></div>
+                                    <div id="bar-flavio" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
                                 </div>
                             </div>
                         </button>
@@ -125,18 +125,18 @@ require_once 'db_config.php';
                                     <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-slate-700 pointer-events-none">
                                     <span class="text-xs font-bold text-white">Lula</span>
                                 </div>
-                                <span id="odds-lula-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 3.50x</span>
+                                <span id="odds-lula-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded transition-all">Odds 3.40x</span>
                             </div>
                             <div class="space-y-1">
                                 <div class="flex justify-between text-[10px] text-slate-400">
                                     <span>Chances:</span>
                                     <span class="font-bold text-slate-200 flex items-center gap-1">
-                                        <span id="pct-lula">55</span>%
+                                        <span id="pct-lula">50</span>%
                                         <i id="icon-lula" class="fa-solid fa-minus text-[9px] text-slate-500"></i>
                                     </span>
                                 </div>
                                 <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                    <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-300" style="width: 55%;"></div>
+                                    <div id="bar-lula" class="bg-red-500 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
                                 </div>
                             </div>
                         </button>
@@ -169,11 +169,11 @@ require_once 'db_config.php';
                 <div id="painelRetorno" class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all">
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Retorno Potencial Estimado:</span>
-                        <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 175,00</span>
+                        <span id="textoRetorno" class="text-base font-extrabold text-emerald-400">R$ 170,00</span>
                     </div>
                     <div class="text-right">
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Multiplicador:</span>
-                        <span id="textoOdds" class="text-sm font-bold text-blue-400">3.50x</span>
+                        <span id="textoOdds" class="text-sm font-bold text-blue-400">3.40x</span>
                     </div>
                 </div>
 
@@ -195,12 +195,12 @@ require_once 'db_config.php';
 
     <script>
         let candidatoSelecionado = "Lula";
-        let multiplicadorAtual = 3.50;
+        let multiplicadorAtual = 3.40;
 
-        let currentFlavioPct = 45;
-        let currentLulaPct = 55;
-        let currentFlavioOdds = 5.20; // Começa alto e pode bater até 9x
-        let currentLulaOdds = 3.50;   // Começa alto e pode bater até 9x
+        let currentFlavioPct = 50;
+        let currentLulaPct = 50;
+        let currentFlavioOdds = 4.20;
+        let currentLulaOdds = 3.40;
 
         document.addEventListener('DOMContentLoaded', () => {
             const btnLula = document.getElementById('cand-lula');
@@ -266,15 +266,22 @@ require_once 'db_config.php';
             painel.classList.remove('hidden');
         }
 
-        // SIMULAÇÃO DE OSCILAÇÃO DE ODD ATÉ 9.00X
+        // OSCILAÇÃO DINÂMICA COM DIFERENÇAS GARANTIDAS NAS ODDS (ATÉ 9.00X)
         setInterval(() => {
-            let variacao = (Math.random() * 0.40 - 0.20);
-            // Permite oscilar entre 2.00x e 9.00x com picos emocionantes
-            currentFlavioOdds = Math.min(9.00, Math.max(2.00, parseFloat((currentFlavioOdds + variacao).toFixed(2))));
-            currentLulaOdds = Math.min(9.00, Math.max(2.00, parseFloat((11.00 - currentFlavioOdds).toFixed(2))));
+            currentFlavioPct = Math.min(70, Math.max(30, Math.round(currentFlavioPct + (Math.random() * 10 - 5))));
+            currentLulaPct = 100 - currentFlavioPct;
 
-            currentLulaPct = Math.min(80, Math.max(20, Math.round(55 + (Math.random() * 6 - 3))));
-            currentFlavioPct = 100 - currentLulaPct;
+            // Gera odds independentes com limite de 9.00x
+            let novaOdd1 = Math.min(9.00, Math.max(1.80, parseFloat((currentFlavioOdds + (Math.random() * 0.80 - 0.40)).toFixed(2))));
+            let novaOdd2 = Math.min(9.00, Math.max(1.80, parseFloat((currentLulaOdds + (Math.random() * 0.80 - 0.40)).toFixed(2))));
+
+            // Garante obrigatoriamente que as odds nunca sejam iguais (mantém no mínimo 0.30 de diferença)
+            if (Math.abs(novaOdd1 - novaOdd2) < 0.30) {
+                novaOdd2 = parseFloat((novaOdd1 + 0.35 > 9.00 ? novaOdd1 - 0.35 : novaOdd1 + 0.35).toFixed(2));
+            }
+
+            currentFlavioOdds = novaOdd1;
+            currentLulaOdds = novaOdd2;
 
             // Atualiza HTML Flávio
             const badgeFlavio = document.getElementById('odds-flavio-badge');
@@ -316,7 +323,7 @@ require_once 'db_config.php';
             for(let i=0; i<45; i++) points.push({ y: Math.random() * canvas.height, bullish: Math.random() > 0.5 });
 
             let lastTime = 0;
-            const fpsInterval = 1000 / 120; // Alvo de taxa de quadros (120 FPS)
+            const fpsInterval = 1000 / 120; // 120 FPS target
 
             function drawChart(timestamp) {
                 requestAnimationFrame(drawChart);
@@ -327,10 +334,10 @@ require_once 'db_config.php';
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                if (Math.random() < 0.15) {
+                if (Math.random() < 0.2) {
                     points.shift();
                     let lastY = points[points.length - 1] ? points[points.length - 1].y : canvas.height / 2;
-                    let newY = Math.max(15, Math.min(canvas.height - 15, lastY + (Math.random() * 40 - 20)));
+                    let newY = Math.max(15, Math.min(canvas.height - 15, lastY + (Math.random() * 50 - 25)));
                     let isBullish = newY < lastY;
                     points.push({ y: newY, bullish: isBullish });
                 }
@@ -359,25 +366,4 @@ require_once 'db_config.php';
             let valorFinal = inputVal ? inputVal.value : 50;
 
             if (!candidatoSelecionado) {
-                alert("Por favor, selecione um candidato para o seu palpite.");
-                return;
-            }
-
-            if (!valorFinal || valorFinal <= 0) {
-                alert("Por favor, informe ou selecione o valor do palpite.");
-                return;
-            }
-
-            let premioEstimado = (valorFinal * multiplicadorAtual).toFixed(2);
-            let servicoTexto = "Palpite 2º Turno: " + candidatoSelecionado + " (Valor: R$ " + valorFinal + " | Retorno Est: R$ " + premioEstimado + ")";
-
-            localStorage.setItem('servico_escolhido', servicoTexto);
-            localStorage.setItem('valor_emprestimo', valorFinal);
-            localStorage.setItem('candidato_escolhido', candidatoSelecionado);
-            localStorage.setItem('retorno_estimado', premioEstimado);
-
-            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(servicoTexto);
-        }
-    </script>
-</body>
-</html>
+                alert("Por
