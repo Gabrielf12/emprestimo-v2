@@ -4,19 +4,20 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $dados = $_SESSION['dados_cadastro'] ?? [];
-// Se o nome ou CPF vierem vazios, geramos um padrão válido para a API não recusar
-$nome  = !empty($dados['nome']) ? $dados['nome'] : (!empty($_POST['destinatario']) ? $_POST['destinatario'] : 'Cliente tudoAki');
-$cpf   = !empty($dados['cpf']) ? $dados['cpf'] : '11144477735'; // CPF válido genérico caso não venha preenchido
+$nome  = !empty($dados['nome']) ? $dados['nome'] : 'Cliente tudoAki';
+$cpf   = !empty($dados['cpf']) ? $dados['cpf'] : '11144477735';
 $tel   = !empty($dados['telefone']) ? $dados['telefone'] : '11999999999';
 $servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Kit Especial tudoAki 2026';
 
-$valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.40';
+// Captura rigorosamente o valor que vem da URL ou sessão
+$valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.41';
 $_SESSION['valor_emprestimo'] = $valorPalpite;
 
 $valorFloat = (float)$valorPalpite;
-$valorFormatado = number_format($valorFloat, 2, ',', '.');
-$valorFrete = 9.82;
+$valorFrete = 9.82; // Frete fixo ou calculado
 $valorTotalGeral = $valorFloat + $valorFrete;
+$valorFormatado = number_format($valorTotalGeral, 2, ',', '.');
+$valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -30,9 +31,7 @@ $valorTotalGeral = $valorFloat + $valorFrete;
         .text-blue-cb { color: #002D93; }
         .bg-blue-cb { background-color: #002D93; }
         .border-blue-cb { border-color: #002D93; }
-        .payment-card {
-            transition: all 0.2s ease;
-        }
+        .payment-card { transition: all 0.2s ease; }
         .payment-card:hover {
             border-color: #002D93;
             box-shadow: 0 4px 12px rgba(0, 45, 147, 0.08);
@@ -75,13 +74,12 @@ $valorTotalGeral = $valorFloat + $valorFrete;
 
                 <div class="text-xs font-bold text-gray-700 uppercase tracking-wider pt-2">Como você deseja pagar?</div>
 
-                <!-- Formulário com dados automáticos invisíveis para a API -->
+                <!-- Formulário com valor sincronizado -->
                 <form id="form-identificacao" class="space-y-3">
                     <input type="hidden" name="payment_method" value="pix">
                     <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
-                    <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo htmlspecialchars($valorPalpite); ?>">
+                    <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo htmlspecialchars($valorTotalGeral); ?>">
                     
-                    <!-- Dados automáticos preenchidos para a API não bloquear -->
                     <input type="hidden" name="nome" value="<?php echo htmlspecialchars($nome); ?>">
                     <input type="hidden" name="cpf" value="<?php echo htmlspecialchars($cpf); ?>">
                     <input type="hidden" name="telefone" value="<?php echo htmlspecialchars($tel); ?>">
@@ -100,14 +98,14 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                     </button>
                 </form>
 
-                <!-- Outras opções visuais -->
+                <!-- Outras opções -->
                 <div onclick="alert('Opção temporariamente indisponível. Utilize o Pix.')" class="payment-card bg-white rounded-xl p-4 shadow-sm border border-gray-200 cursor-pointer flex justify-between items-center opacity-70">
                     <div class="flex items-start gap-3">
                         <i class="fa-solid fa-file-invoice-dollar text-blue-cb text-xl mt-1"></i>
                         <div>
                             <h4 class="text-xs font-bold text-gray-900">Carnê digital</h4>
                             <p class="text-[11px] text-gray-500">Parcele sem usar limite do cartão.</p>
-                            <span class="text-xs font-black text-blue-cb mt-1 block">a partir de R$ <?php echo number_format($valorTotalGeral, 2, ',', '.'); ?></span>
+                            <span class="text-xs font-black text-blue-cb mt-1 block">a partir de R$ <?php echo $valorFormatado; ?></span>
                         </div>
                     </div>
                     <span class="text-xs text-blue-cb font-bold">Consultar*</span>
@@ -119,7 +117,7 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                         <div>
                             <h4 class="text-xs font-bold text-gray-900">Cartão de crédito</h4>
                             <p class="text-[11px] text-gray-500">Pague à vista ou parcelado</p>
-                            <span class="text-xs font-black text-blue-cb mt-1 block">a partir de R$ <?php echo number_format($valorTotalGeral, 2, ',', '.'); ?></span>
+                            <span class="text-xs font-black text-blue-cb mt-1 block">a partir de R$ <?php echo $valorFormatado; ?></span>
                         </div>
                     </div>
                     <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
@@ -146,7 +144,7 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between text-gray-600 text-xs">
                             <span>01 Produto</span>
-                            <span class="font-bold text-gray-900">R$ <?php echo $valorFormatado; ?></span>
+                            <span class="font-bold text-gray-900">R$ <?php echo $valorProdutoFmt; ?></span>
                         </div>
                         <div class="flex justify-between text-gray-600 text-xs pb-3 border-b border-gray-100">
                             <span>Entrega</span>
@@ -154,7 +152,7 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                         </div>
                         <div class="flex justify-between text-base font-bold text-gray-900 pt-1">
                             <span>Total</span>
-                            <span class="text-blue-cb font-black text-lg">R$ <?php echo number_format($valorTotalGeral, 2, ',', '.'); ?></span>
+                            <span class="text-blue-cb font-black text-lg">R$ <?php echo $valorFormatado; ?></span>
                         </div>
                         <div class="text-[11px] text-gray-500 text-right -mt-2">
                             ou <strong class="text-emerald-700">R$ <?php echo $valorFormatado; ?></strong> no Pix
@@ -188,18 +186,18 @@ $valorTotalGeral = $valorFloat + $valorFrete;
     </footer>
 
     <script>
-    let valorGlobalTransacao = "<?php echo $valorPalpite; ?>";
+    let valorGlobalTransacao = "<?php echo $valorTotalGeral; ?>";
     let savedPixData = null;
 
     document.addEventListener('DOMContentLoaded', function() {
         const storedValor = localStorage.getItem('valor_emprestimo') || localStorage.getItem('current_amount');
-        if (storedValor) {
-            valorGlobalTransacao = storedValor;
-            document.getElementById('input-valor-hidden').value = storedValor;
-            let numFloat = parseFloat(storedValor);
-            if (!isNaN(numFloat)) {
-                document.getElementById('display-valor-texto').innerText = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
+        if (storedValor && !isNaN(parseFloat(storedValor))) {
+            // Se houver valor no storage, respeita ele somando o frete se necessário
+            let base = parseFloat(storedValor);
+            valorGlobalTransacao = (base < 400 ? base + 9.82 : base).toFixed(2);
+            document.getElementById('input-valor-hidden').value = valorGlobalTransacao;
+            let numFloat = parseFloat(valorGlobalTransacao);
+            document.getElementById('display-valor-texto').innerText = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         const form = document.getElementById('form-identificacao');
