@@ -157,7 +157,7 @@ $precoPix = $precoCheio * 0.95; // 5\% de desconto no Pix$descontoPix = $precoCh
                     </div>
 
                     <!-- Formulário de Envio -->
-                    <form action="pay.php" method="POST" class="space-y-3 pt-2">
+                    <form action="endereco.php" method="POST" class="space-y-3 pt-2">
                         <input type="hidden" name="produto" value="<?php echo htmlspecialchars($nomeProduto); ?>">
                         <input type="hidden" id="inputValorFinal" name="valor" value="<?php echo $precoPix; ?>">
                         <input type="hidden" id="inputFreteValor" name="frete" value="0.00">
