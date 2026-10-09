@@ -13,7 +13,6 @@ require_once 'db_config.php';
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Cores Personalizadas: Azul Marinho e Dourado */
         .bg-navy { background-color: #0b192c; }
         .bg-navy-dark { background-color: #060e18; }
         .text-gold { color: #d4af37; }
@@ -23,12 +22,12 @@ require_once 'db_config.php';
         .product-card {
             transition: all 0.25s ease;
             background: #0f2238;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.25);
         }
         .product-card:hover {
             transform: translateY(-3px);
             border-color: #d4af37;
-            box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.2);
         }
         @keyframes pulse-gold {
             0%, 100% { opacity: 1; }
@@ -45,11 +44,10 @@ require_once 'db_config.php';
     <header class="bg-navy-dark border-b border-gold/30 shadow-lg sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
             
-            <!-- Logomarca -->
+            <!-- Logomarca (Direto da imagem enviada) -->
             <div class="flex items-center justify-between w-full md:w-auto">
                 <a href="index.php" class="flex items-center gap-3">
-                    <!-- Substitua 'logo.jpg' pelo nome exato da imagem da logo no seu projeto -->
-                    <img src="logo.jpg" alt="tudoAki Logo" class="h-12 md:h-14 object-contain rounded-lg border border-gold/40 shadow-md">
+                    <img src="https://i.ibb.co/2sdJzL9w/tudoaki-logo.jpg" alt="tudoAki Logo" class="h-12 md:h-14 object-contain rounded-lg border border-gold/40 shadow-md bg-navy" onerror="this.onerror=null; this.src='logo.jpg';">
                 </a>
                 <div class="md:hidden flex items-center gap-3">
                     <button onclick="toggleCart()" class="relative text-gold text-lg">
@@ -92,10 +90,9 @@ require_once 'db_config.php';
     <!-- Conteúdo Principal -->
     <main class="max-w-6xl w-full mx-auto p-4 my-4 space-y-6 flex-grow">
 
-        <!-- Banner Promocional do Sorteio (Segunda Imagem Enviada) -->
+        <!-- Banner Promocional do Sorteio (Direto da imagem enviada) -->
         <div class="rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/50 relative bg-navy-dark">
-            <!-- Substitua 'banner_sorteio.jpg' pelo nome exato da imagem do carro no seu projeto -->
-            <img src="banner_sorteio.jpg" alt="Sorteio Nivus ou 60 Mil no Pix" class="w-full h-auto object-cover max-h-[450px]">
+            <img src="https://i.ibb.co/VWVw0w94/tudoaki-banner.jpg" alt="Sorteio Nivus ou 60 Mil no Pix" class="w-full h-auto object-cover max-h-[480px]" onerror="this.onerror=null; this.src='banner_sorteio.jpg';">
             <div class="absolute bottom-4 right-4 z-10">
                 <a href="#vitrine" class="bg-gold hover:opacity-90 text-navy font-black px-6 py-3 rounded-xl shadow-lg inline-block uppercase text-xs tracking-wider transition gold-pulse">
                     Participar do Sorteio
@@ -114,12 +111,12 @@ require_once 'db_config.php';
         <!-- Grade de Produtos -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             
-            <!-- Produto Exemplo 1 -->
+            <!-- Produto 1 -->
             <div class="product-card rounded-xl p-4 flex flex-col justify-between">
                 <div>
                     <div class="h-36 bg-navy-dark rounded-lg mb-3 flex items-center justify-center text-gold/50 font-semibold relative overflow-hidden border border-gold/20">
                         <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">Ganha Cupom</span>
-                        <i class="fa-solid fa-box-open text-3xl"></i>
+                        <i class="fa-solid fa-box-open text-3xl text-gold"></i>
                     </div>
                     <h3 class="text-xs font-bold text-gray-200 line-clamp-2 mb-2">Kit Especial tudoAki 2026 + Número da Sorte</h3>
                 </div>
@@ -133,12 +130,12 @@ require_once 'db_config.php';
                 </div>
             </div>
 
-            <!-- Produto Exemplo 2 -->
+            <!-- Produto 2 -->
             <div class="product-card rounded-xl p-4 flex flex-col justify-between">
                 <div>
                     <div class="h-36 bg-navy-dark rounded-lg mb-3 flex items-center justify-center text-gold/50 font-semibold relative overflow-hidden border border-gold/20">
                         <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">Frete Grátis</span>
-                        <i class="fa-solid fa-mobile-screen text-3xl"></i>
+                        <i class="fa-solid fa-mobile-screen text-3xl text-gold"></i>
                     </div>
                     <h3 class="text-xs font-bold text-gray-200 line-clamp-2 mb-2">Smartphone Premium 128GB + Sorteio em Dobro</h3>
                 </div>
@@ -152,12 +149,12 @@ require_once 'db_config.php';
                 </div>
             </div>
 
-            <!-- Produto Exemplo 3 -->
+            <!-- Produto 3 -->
             <div class="product-card rounded-xl p-4 flex flex-col justify-between">
                 <div>
                     <div class="h-36 bg-navy-dark rounded-lg mb-3 flex items-center justify-center text-gold/50 font-semibold relative overflow-hidden border border-gold/20">
                         <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">Oferta Relâmpago</span>
-                        <i class="fa-solid fa-tv text-3xl"></i>
+                        <i class="fa-solid fa-tv text-3xl text-gold"></i>
                     </div>
                     <h3 class="text-xs font-bold text-gray-200 line-clamp-2 mb-2">Smart TV 50" 4K UHD com Comando de Voz</h3>
                 </div>
@@ -171,12 +168,12 @@ require_once 'db_config.php';
                 </div>
             </div>
 
-            <!-- Produto Exemplo 4 -->
+            <!-- Produto 4 -->
             <div class="product-card rounded-xl p-4 flex flex-col justify-between">
                 <div>
                     <div class="h-36 bg-navy-dark rounded-lg mb-3 flex items-center justify-center text-gold/50 font-semibold relative overflow-hidden border border-gold/20">
                         <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">Mais Vendido</span>
-                        <i class="fa-solid fa-headphones text-3xl"></i>
+                        <i class="fa-solid fa-headphones text-3xl text-gold"></i>
                     </div>
                     <h3 class="text-xs font-bold text-gray-200 line-clamp-2 mb-2">Fone Bluetooth Gamer Sem Fio de Alta Performance</h3>
                 </div>
