@@ -42,7 +42,6 @@ try {
 
     $valor_total_centavos = (int)round($custom_amount * 100);
 
-    // Configurações Iron Pay reais
     $product_hash = 'iatlfawko9';
     $offer_hash   = 'ksf2tt43yt';
     $postback_url = 'https://www.tiktokshoop.store/api/webhook_ironpay.php';
@@ -101,6 +100,9 @@ try {
     $responseData = json_decode($response, true);
 
     if ($http_code !== 200 && $http_code !== 201) {
+        // Grava a resposta detalhada num ficheiro de log local para consulta imediata
+        file_put_contents('iron_debug.txt', "HTTP: $http_code\nResponse: " . $response . "\nPayload enviado: " . json_encode($payload));
+        
         $last_error_msg = $responseData['message'] ?? $responseData['error'] ?? $response;
         throw new Exception("Erro Iron Pay (HTTP $http_code): " . (is_array($last_error_msg) ? json_encode($last_error_msg, JSON_UNESCAPED_UNICODE) : $last_error_msg));
     }
@@ -120,7 +122,6 @@ try {
         throw new Exception("Não foi possível gerar a chave PIX na Iron Pay. Resposta: " . $response);
     }
 
-    // Gravação no Banco
     $localPedidoId = rand(10000, 99999);
     try {
         $stmt_insert = $pdo->prepare("INSERT INTO pedidos
