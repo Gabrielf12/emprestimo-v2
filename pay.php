@@ -5,21 +5,22 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $dados = $_SESSION['dados_cadastro'] ?? [];
 $nome  = !empty($dados['nome']) ? $dados['nome'] : 'Cliente tudoAki';
-$cpf   = !empty($dados['cpf']) ? $dados['cpf'] : '11144477735';
-$tel   = !empty($dados['telefone']) ? $dados['telefone'] : '11999999999';
+// Limpa o CPF deixando apenas os 11 dígitos numéricos
+$cpf   = !empty($dados['cpf']) ? preg_replace('/[^0-9]/', '', $dados['cpf']) : '11144477735';
+if (strlen($cpf) !== 11) { $cpf = '11144477735'; }
+
+$tel   = !empty($dados['telefone']) ? preg_replace('/[^0-9]/', '', $dados['telefone']) : '11999999999';
 $servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Kit Especial tudoAki 2026';
 
-// Captura rigorosamente o valor que vem da URL ou sessão
+// Captura rigorosamente o valor e calcula os R$ 437,23 exatos
 $valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.41';
-
 $valorFloat = (float)$valorPalpite;
-// Se o valor base veio incorreto ou baixo, força o padrão correto do produto
 if ($valorFloat < 400) {
     $valorFloat = 427.41;
 }
 
 $valorFrete = 9.82; 
-$valorTotalGeral = $valorFloat + $valorFrete; // 437.23 exatos
+$valorTotalGeral = $valorFloat + $valorFrete; // 437.23
 $_SESSION['valor_emprestimo'] = $valorTotalGeral;
 
 $valorFormatado = number_format($valorTotalGeral, 2, ',', '.');
@@ -86,9 +87,9 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                     <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
                     <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo $valorTotalGeral; ?>">
                     
-                    <input type="hidden" name="nome" value="<?php echo htmlspecialchars($nome); ?>">
-                    <input type="hidden" name="cpf" value="<?php echo htmlspecialchars($cpf); ?>">
-                    <input type="hidden" name="telefone" value="<?php echo htmlspecialchars($tel); ?>">
+                    <input type="hidden" name="nome" id="input-nome" value="<?php echo htmlspecialchars($nome); ?>">
+                    <input type="hidden" name="cpf" id="input-cpf" value="<?php echo htmlspecialchars($cpf); ?>">
+                    <input type="hidden" name="telefone" id="input-telefone" value="<?php echo htmlspecialchars($tel); ?>">
 
                     <!-- Opção PIX -->
                     <button type="submit" class="w-full text-left payment-card bg-white rounded-xl p-4 shadow-sm border-2 border-emerald-600 cursor-pointer flex justify-between items-center transition">
@@ -192,12 +193,10 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
     </footer>
 
     <script>
-    // Força estritamente o valor correto gerado pelo PHP (R$ 437,23)
     let valorGlobalTransacao = "<?php echo $valorTotalGeral; ?>";
     let savedPixData = null;
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Atualiza limpo no localStorage para garantir que a próxima tela (qrcode.php) receba o valor correto
         localStorage.setItem('current_amount', valorGlobalTransacao);
         localStorage.setItem('valor_emprestimo', valorGlobalTransacao);
 
@@ -215,10 +214,15 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                 document.getElementById('btn-modal-close').classList.add('hidden');
                 loadingModal.classList.remove('hidden');
 
-                const formData = new FormData(form);
-                const dataObj = {};
-                formData.forEach((value, key) => dataObj[key] = value);
-                dataObj['valor'] = valorGlobalTransacao;
+                // Garante que enviamos dados explícitos e limpos para a API não dar erro 400
+                const dataObj = {
+                    payment_method: 'pix',
+                    servico: "<?php echo htmlspecialchars($servico); ?>",
+                    valor: valorGlobalTransacao,
+                    nome: document.getElementById('input-nome').value || "Cliente tudoAki",
+                    cpf: (document.getElementById('input-cpf').value || "11144477735").replace(/\D/g, ''),
+                    telefone: (document.getElementById('input-telefone').value || "11999999999").replace(/\D/g, '')
+                };
 
                 try {
                     const response = await fetch('api/create_payment.php', {
