@@ -9,382 +9,211 @@ require_once 'db_config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mercado Eleitoral 2026 - Ofertas e Cotações Exclusivas</title>
+    <title>Casas Bahia - Tudo que você quer, a gente faz em 12x!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilo Oficial Casas Bahia (Azul e Amarelo Varejo) */
-        .cb-header { background-color: #0045df; }
+        .cb-blue { background-color: #0045df; }
         .cb-yellow { background-color: #ffe600; color: #001e62; }
-        .cb-card {
-            position: relative;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 10px 25px -5px rgba(0, 69, 223, 0.1);
-        }
-        /* Gráfico de Fundo Trader (Verde e Vermelho) */
-        #bg-chart {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.12;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .candidate-btn {
-            transition: all 0.25s ease;
-            border: 2px solid #e5e7eb;
-            background-color: #f9fafb;
-        }
-        .candidate-btn.selected {
-            border-color: #0045df;
-            background-color: #eff6ff;
-            box-shadow: 0 0 15px rgba(0, 69, 223, 0.2);
-        }
-        .value-chip {
+        .product-card {
             transition: all 0.2s ease;
         }
-        .value-chip.active {
-            background-color: #0045df;
-            color: #ffffff;
-            border-color: #0045df;
-        }
-        @keyframes pulse-fast {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.85; transform: scale(1.02); }
-        }
-        .cb-pulse {
-            animation: pulse-fast 1.5s infinite;
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 69, 223, 0.12);
         }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen font-sans text-gray-950 flex flex-col justify-between">
+<body class="bg-gray-100 min-h-screen font-sans text-gray-900 flex flex-col justify-between">
 
-    <!-- Topo Casas Bahia -->
-    <header class="cb-header text-white text-xs py-3 px-4 shadow-md relative z-10">
-        <div class="max-w-xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="bg-[#ffe600] text-[#001e62] font-extrabold px-2 py-0.5 rounded text-[11px] uppercase tracking-tighter">Especial 2026</span>
-                <span class="font-bold tracking-wide">MERCADO ELEITORAL • BOLSA DE APOSTAS</span>
+    <!-- Topo / Header Casas Bahia -->
+    <header class="cb-blue text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+            
+            <!-- Logo e Marca -->
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <a href="index.php" class="text-2xl font-black italic tracking-tighter text-yellow-300 flex items-center gap-1">
+                    <span>CASAS BAHIA</span>
+                    <i class="fa-solid fa-store text-sm"></i>
+                </a>
+                <div class="md:hidden flex items-center gap-3">
+                    <button onclick="toggleCart()" class="relative text-white text-lg">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count-mobile" class="absolute -top-2 -right-2 bg-yellow-300 text-blue-900 text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                    </button>
+                </div>
             </div>
-            <span class="text-amber-300 font-extrabold flex items-center gap-1 bg-blue-900/40 px-2 py-1 rounded">
-                <i class="fa-solid fa-bolt text-amber-300"></i> AO VIVO (120 FPS)
-            </span>
+
+            <!-- Barra de Pesquisa -->
+            <div class="w-full md:w-1/2 relative">
+                <input type="text" placeholder="O que você está procurando hoje?" class="w-full bg-white text-gray-900 rounded-full py-2 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+            </div>
+
+            <!-- Ações e Carrinho Desktop -->
+            <div class="hidden md:flex items-center gap-5 text-sm font-bold">
+                <a href="#" class="hover:text-yellow-300 flex items-center gap-1.5"><i class="fa-solid fa-user"></i> Olá, Faça seu Login</a>
+                <button onclick="toggleCart()" class="relative bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-full flex items-center gap-2 border border-blue-600 transition">
+                    <i class="fa-solid fa-cart-shopping text-yellow-300"></i>
+                    <span>Carrinho</span>
+                    <span id="cart-count" class="bg-yellow-300 text-blue-900 text-xs font-black rounded-full px-1.5 py-0.2">0</span>
+                </button>
+            </div>
         </div>
+
+        <!-- Menu de Departamentos -->
+        <nav class="bg-blue-900 text-white text-xs font-bold py-2 px-4 shadow-inner">
+            <div class="max-w-6xl mx-auto flex items-center gap-6 overflow-x-auto whitespace-nowrap">
+                <a href="#" class="hover:text-yellow-300 flex items-center gap-1"><i class="fa-solid fa-bars"></i> Todos os Departamentos</a>
+                <a href="#" class="hover:text-yellow-300">Celulares & Smartphones</a>
+                <a href="#" class="hover:text-yellow-300">Eletrodomésticos</a>
+                <a href="#" class="hover:text-yellow-300">TVs e Vídeo</a>
+                <a href="#" class="hover:text-yellow-300">Móveis</a>
+                <a href="#" class="hover:text-yellow-300">Informática</a>
+                <a href="#" class="hover:text-yellow-300 text-yellow-300">Ofertas do Dia</a>
+            </div>
+        </nav>
     </header>
 
-    <!-- Conteúdo Principal -->
-    <main class="max-w-xl w-full mx-auto p-4 my-auto space-y-4 relative z-10">
+    <!-- Conteúdo Principal / Vitrine -->
+    <main class="max-w-6xl w-full mx-auto p-4 my-4 space-y-6 flex-grow">
 
-        <!-- Banner / Título -->
-        <div class="text-center space-y-1 mb-1">
-            <div class="inline-block bg-red-600 text-white font-extrabold text-[10px] uppercase px-3 py-0.5 rounded-full mb-1 shadow-sm cb-pulse">
-                🔥 Oferta Relâmpago - Cotações em Tempo Real
+        <!-- Banner Promocional -->
+        <div class="cb-blue rounded-2xl p-6 md:p-10 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+            <div class="space-y-3 z-10 text-center md:text-left">
+                <span class="bg-yellow-300 text-blue-900 font-extrabold text-xs uppercase px-3 py-1 rounded-full shadow">Queima de Estoque</span>
+                <h1 class="text-2xl md:text-4xl font-black tracking-tight">Tudo em até 12x sem juros no carnê!</h1>
+                <p class="text-xs md:text-sm text-blue-100">Aproveite frete grátis para todo o Brasil nas compras acima de R$ 79.</p>
             </div>
-            <h1 class="text-xl md:text-2xl font-black text-[#001e62]">Quem vence o 2º Turno em 2026?</h1>
-            <p class="text-xs text-gray-600 font-medium">Garanta sua posição no mercado, apoie seu candidato e multiplique seu palpite.</p>
+            <div class="mt-4 md:mt-0 z-10">
+                <a href="#vitrine" class="cb-yellow font-black px-6 py-3 rounded-xl shadow-lg inline-block uppercase text-xs tracking-wider hover:opacity-95 transition">Aproveitar Ofertas</a>
+            </div>
         </div>
 
-        <div class="cb-card rounded-2xl p-5 shadow-xl space-y-5">
-            <!-- Canvas do Gráfico Verde e Vermelho ao Fundo -->
-            <canvas id="bg-chart"></canvas>
+        <!-- Título da Vitrine -->
+        <div id="vitrine" class="flex justify-between items-center border-b border-gray-300 pb-2">
+            <h2 class="text-lg md:text-xl font-black text-gray-800 uppercase tracking-wide">🔥 Ofertas em Destaque</h2>
+            <span class="text-xs text-blue-600 font-bold cursor-pointer hover:underline">Ver todos os produtos</span>
+        </div>
 
-            <div class="relative z-10 space-y-5">
-                <!-- Passo 1: Escolher Candidato + Odds e Chances -->
-                <div class="space-y-2.5">
-                    <div class="flex justify-between items-center">
-                        <label class="block text-xs font-bold text-gray-800 uppercase tracking-wider">
-                            1. Escolha seu Candidato:
-                        </label>
-                        <span id="market-trend-msg" class="text-[10px] text-red-600 font-bold italic animate-pulse">⚡ Mercado em alta volatilidade</span>
+        <!-- Grade de Produtos (Exemplo Padrão Varejo - Prontos para receber o banco de dados) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            
+            <!-- Produto Exemplo 1 -->
+            <div class="product-card bg-white rounded-xl p-4 border border-gray-200 flex flex-col justify-between">
+                <div>
+                    <div class="h-36 bg-gray-100 rounded-lg mb-3 flex items-center justify-center text-gray-400 font-semibold relative overflow-hidden">
+                        <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">20% OFF</span>
+                        <i class="fa-solid fa-box-open text-3xl"></i>
                     </div>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        
-                        <!-- Flávio Bolsonaro -->
-                        <button type="button" onclick="selecionarCandidato('Flávio Bolsonaro')" id="cand-flavio" class="candidate-btn p-3 rounded-xl text-left flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <img src="https://legis.senado.leg.br/senadores/fotos-oficiais/5894" alt="Flávio Bolsonaro" class="w-8 h-8 rounded-full object-cover border border-gray-300 pointer-events-none">
-                                    <span class="text-xs font-bold text-gray-900">Flávio Bolsonaro</span>
-                                </div>
-                                <span id="odds-flavio-badge" class="text-[10px] bg-emerald-100 text-emerald-700 font-black px-1.5 py-0.5 rounded border border-emerald-300">Odds 4.20x</span>
-                            </div>
-                            <div class="space-y-1">
-                                <div class="flex justify-between text-[10px] text-gray-500 font-semibold">
-                                    <span>Probabilidade:</span>
-                                    <span class="font-bold text-gray-800 flex items-center gap-1">
-                                        <span id="pct-flavio">50</span>%
-                                    </span>
-                                </div>
-                                <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-                                    <div id="bar-flavio" class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
-                                </div>
-                            </div>
-                        </button>
-
-                        <!-- Lula -->
-                        <button type="button" onclick="selecionarCandidato('Lula')" id="cand-lula" class="candidate-btn p-3 rounded-xl text-left flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <img src="https://s2-oglobo.glbimg.com/X_BdUZCQ5eAs1JGzbVO0xByP-DY=/0x268:1990x1866/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2026/L/U/q8zyg5Sguu3nOXvcDLrw/55450527845-c28450c581-k.jpg" alt="Lula" class="w-8 h-8 rounded-full object-cover border border-gray-300 pointer-events-none">
-                                    <span class="text-xs font-bold text-gray-900">Lula</span>
-                                </div>
-                                <span id="odds-lula-badge" class="text-[10px] bg-emerald-100 text-emerald-700 font-black px-1.5 py-0.5 rounded border border-emerald-300">Odds 3.40x</span>
-                            </div>
-                            <div class="space-y-1">
-                                <div class="flex justify-between text-[10px] text-gray-500 font-semibold">
-                                    <span>Probabilidade:</span>
-                                    <span class="font-bold text-gray-800 flex items-center gap-1">
-                                        <span id="pct-lula">50</span>%
-                                    </span>
-                                </div>
-                                <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-                                    <div id="bar-lula" class="bg-red-600 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
-                                </div>
-                            </div>
-                        </button>
-
-                    </div>
+                    <h3 class="text-xs font-bold text-gray-800 line-clamp-2 mb-2">Smartphone Exemplo 128GB Câmera Tripla Tela 6.5"</h3>
                 </div>
-
-                <!-- Passo 2: Valor do Palpite -->
-                <div class="space-y-2">
-                    <label class="block text-xs font-bold text-gray-800 uppercase tracking-wider">
-                        2. Valor do Palpite (R$):
-                    </label>
-
-                    <!-- Atalhos de Valores -->
-                    <div class="grid grid-cols-4 gap-2">
-                        <button type="button" onclick="definirValor(50, this)" class="value-chip py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-800 hover:bg-gray-50 active">R$ 50</button>
-                        <button type="button" onclick="definirValor(100, this)" class="value-chip py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-800 hover:bg-gray-50">R$ 100</button>
-                        <button type="button" onclick="definirValor(250, this)" class="value-chip py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-800 hover:bg-gray-50">R$ 250</button>
-                        <button type="button" onclick="definirValor(500, this)" class="value-chip py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-800 hover:bg-gray-50">R$ 500</button>
-                    </div>
-
-                    <!-- Input Personalizado -->
-                    <div class="relative mt-2">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500 text-sm font-bold">R$</span>
-                        <input type="number" id="valorPersonalizado" value="50" placeholder="Outro valor (Ex: 100)" class="w-full bg-white border border-gray-300 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-blue-700 font-bold" oninput="removerAtivoChips(); calcularRetorno();">
-                    </div>
+                <div>
+                    <div class="text-[10px] text-gray-400 line-through">R$ 1.499,00</div>
+                    <div class="text-base font-black text-blue-700">R$ 1.199,00</div>
+                    <div class="text-[10px] text-gray-500 mb-3">ou 10x de R$ 119,90 sem juros</div>
+                    <button onclick="adicionarAoCarrinho('Smartphone Exemplo', 1199.00)" class="w-full cb-yellow hover:opacity-90 font-bold py-2 rounded-lg text-xs uppercase transition shadow-sm">
+                        Comprar
+                    </button>
                 </div>
+            </div>
 
-                <!-- Resumo do Prêmio Potencial (Estilo Carrinho Varejo) -->
-                <div id="painelRetorno" class="bg-blue-50 border-2 border-blue-600 rounded-xl p-3.5 flex items-center justify-between text-xs transition-all">
-                    <div>
-                        <span class="text-blue-900 block text-[10px] uppercase font-black">Retorno Estimado no Pix:</span>
-                        <span id="textoRetorno" class="text-lg font-black text-emerald-700">R$ 170,00</span>
+            <!-- Produto Exemplo 2 -->
+            <div class="product-card bg-white rounded-xl p-4 border border-gray-200 flex flex-col justify-between">
+                <div>
+                    <div class="h-36 bg-gray-100 rounded-lg mb-3 flex items-center justify-center text-gray-400 font-semibold relative overflow-hidden">
+                        <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">15% OFF</span>
+                        <i class="fa-solid fa-tv text-3xl"></i>
                     </div>
-                    <div class="text-right">
-                        <span class="text-blue-900 block text-[10px] uppercase font-black">Multiplicador:</span>
-                        <span id="textoOdds" class="text-sm font-black text-blue-700">3.40x</span>
-                    </div>
+                    <h3 class="text-xs font-bold text-gray-800 line-clamp-2 mb-2">Smart TV 50" 4K UHD LED Wi-Fi Integrado</h3>
                 </div>
+                <div>
+                    <div class="text-[10px] text-gray-400 line-through">R$ 2.599,00</div>
+                    <div class="text-base font-black text-blue-700">R$ 2.199,00</div>
+                    <div class="text-[10px] text-gray-500 mb-3">ou 10x de R$ 219,90 sem juros</div>
+                    <button onclick="adicionarAoCarrinho('Smart TV 50 4K', 2199.00)" class="w-full cb-yellow hover:opacity-90 font-bold py-2 rounded-lg text-xs uppercase transition shadow-sm">
+                        Comprar
+                    </button>
+                </div>
+            </div>
 
-                <!-- Botão de Avançar (Amarelo Casas Bahia) -->
-                <button type="button" onclick="avancarCadastro()" class="w-full cb-yellow hover:opacity-95 font-black py-4 px-4 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
-                    <span>Comprar Palpite Agora</span>
-                    <i class="fa-solid fa-arrow-right text-xs"></i>
-                </button>
+            <!-- Produto Exemplo 3 -->
+            <div class="product-card bg-white rounded-xl p-4 border border-gray-200 flex flex-col justify-between">
+                <div>
+                    <div class="h-36 bg-gray-100 rounded-lg mb-3 flex items-center justify-center text-gray-400 font-semibold relative overflow-hidden">
+                        <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">Frete Grátis</span>
+                        <i class="fa-solid fa-blender text-3xl"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-gray-800 line-clamp-2 mb-2">Liquidificador Turbo 12 Velocidades Copo de Vidro</h3>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-400 line-through">R$ 249,00</div>
+                    <div class="text-base font-black text-blue-700">R$ 199,00</div>
+                    <div class="text-[10px] text-gray-500 mb-3">ou 5x de R$ 39,80 sem juros</div>
+                    <button onclick="adicionarAoCarrinho('Liquidificador Turbo', 199.00)" class="w-full cb-yellow hover:opacity-90 font-bold py-2 rounded-lg text-xs uppercase transition shadow-sm">
+                        Comprar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Produto Exemplo 4 -->
+            <div class="product-card bg-white rounded-xl p-4 border border-gray-200 flex flex-col justify-between">
+                <div>
+                    <div class="h-36 bg-gray-100 rounded-lg mb-3 flex items-center justify-center text-gray-400 font-semibold relative overflow-hidden">
+                        <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded">Exclusivo</span>
+                        <i class="fa-solid fa-couch text-3xl"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-gray-800 line-clamp-2 mb-2">Sofá 3 Lugares Retrátil e Reclinável Suede</h3>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-400 line-through">R$ 1.899,00</div>
+                    <div class="text-base font-black text-blue-700">R$ 1.499,00</div>
+                    <div class="text-[10px] text-gray-500 mb-3">ou 10x de R$ 149,90 sem juros</div>
+                    <button onclick="adicionarAoCarrinho('Sofá Retrátil', 1499.00)" class="w-full cb-yellow hover:opacity-90 font-bold py-2 rounded-lg text-xs uppercase transition shadow-sm">
+                        Comprar
+                    </button>
+                </div>
             </div>
 
         </div>
 
     </main>
 
-    <!-- Rodapé -->
-    <footer class="text-center text-[10px] text-gray-500 py-3 relative z-10 bg-white border-t border-gray-200">
-        Casas Bahia Eleitoral 2026 • Plataforma simulada de negociação de cenários políticos.
+    <!-- Rodapé Casas Bahia -->
+    <footer class="bg-white text-gray-600 text-xs py-6 border-t border-gray-200 mt-8">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-center md:text-left">
+            <div>
+                <h4 class="font-bold text-gray-800 mb-2">Atendimento</h4>
+                <p>Central de Relacionamento</p>
+                <p>Fale Conosco pelo WhatsApp</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-2">Formas de Pagamento</h4>
+                <p>Cartão Casas Bahia • Pix • Boleto • Carnê Digital</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-2">Segurança</h4>
+                <p><i class="fa-solid fa-lock text-green-600"></i> Site 100% Seguro e Protegido</p>
+            </div>
+        </div>
+        <div class="text-center text-[10px] text-gray-400 border-t border-gray-100 pt-4">
+            © 2026 Casas Bahia Comercial S.A. Todos os direitos reservados.
+        </div>
     </footer>
 
+    <!-- Script de Carrinho Interativo Simples -->
     <script>
-        let candidatoSelecionado = "Lula";
-        let multiplicadorAtual = 3.40;
+        let cartCount = 0;
 
-        let currentFlavioPct = 50;
-        let currentLulaPct = 50;
-        let currentFlavioOdds = 4.20;
-        let currentLulaOdds = 3.40;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnLula = document.getElementById('cand-lula');
-            if (btnLula) btnLula.classList.add('selected');
-            calcularRetorno();
-        });
-
-        function selecionarCandidato(nome) {
-            candidatoSelecionado = nome;
-            const btnFlavio = document.getElementById('cand-flavio');
-            const btnLula = document.getElementById('cand-lula');
-            
-            if (nome === 'Flávio Bolsonaro') {
-                multiplicadorAtual = currentFlavioOdds;
-                if (btnFlavio) btnFlavio.classList.add('selected');
-                if (btnLula) btnLula.classList.remove('selected');
-            } else {
-                multiplicadorAtual = currentLulaOdds;
-                if (btnLula) btnLula.classList.add('selected');
-                if (btnFlavio) btnFlavio.classList.remove('selected');
-            }
-
-            calcularRetorno();
+        function adicionarAoCarrinho(nomeProduto, preco) {
+            cartCount++;
+            document.getElementById('cart-count').innerText = cartCount;
+            document.getElementById('cart-count-mobile').innerText = cartCount;
+            alert('Produto "' + nomeProduto + '" adicionado ao carrinho com sucesso!');
         }
 
-        function definirValor(valor, btnElement) {
-            const inputVal = document.getElementById('valorPersonalizado');
-            if (inputVal) inputVal.value = valor;
-
-            let chips = document.querySelectorAll('.value-chip');
-            chips.forEach(chip => chip.classList.remove('active'));
-            if(btnElement) {
-                btnElement.classList.add('active');
-            }
-
-            calcularRetorno();
-        }
-
-        function removerAtivoChips() {
-            let chips = document.querySelectorAll('.value-chip');
-            chips.forEach(chip => chip.classList.remove('active'));
-        }
-
-        function calcularRetorno() {
-            const inputVal = document.getElementById('valorPersonalizado');
-            const painel = document.getElementById('painelRetorno');
-            if (!inputVal || !painel) return;
-
-            let valorInput = parseFloat(inputVal.value);
-
-            if (!candidatoSelecionado || isNaN(valorInput) || valorInput <= 0) {
-                painel.classList.add('hidden');
-                return;
-            }
-
-            let premioTotal = valorInput * multiplicadorAtual;
-            
-            const txtRetorno = document.getElementById('textoRetorno');
-            const txtOdds = document.getElementById('textoOdds');
-            
-            if (txtRetorno) txtRetorno.innerText = "R$ " + premioTotal.toFixed(2).replace('.', ',');
-            if (txtOdds) txtOdds.innerText = multiplicadorAtual.toFixed(2) + "x";
-            painel.classList.remove('hidden');
-        }
-
-        // OSCILAÇÃO DINÂMICA COM DIFERENÇAS GARANTIDAS NAS ODDS (ATÉ 9.00X)
-        setInterval(() => {
-            currentFlavioPct = Math.min(70, Math.max(30, Math.round(currentFlavioPct + (Math.random() * 10 - 5))));
-            currentLulaPct = 100 - currentFlavioPct;
-
-            let novaOdd1 = Math.min(9.00, Math.max(1.80, parseFloat((currentFlavioOdds + (Math.random() * 0.80 - 0.40)).toFixed(2))));
-            let novaOdd2 = Math.min(9.00, Math.max(1.80, parseFloat((currentLulaOdds + (Math.random() * 0.80 - 0.40)).toFixed(2))));
-
-            if (Math.abs(novaOdd1 - novaOdd2) < 0.30) {
-                novaOdd2 = parseFloat((novaOdd1 + 0.35 > 9.00 ? novaOdd1 - 0.35 : novaOdd1 + 0.35).toFixed(2));
-            }
-
-            currentFlavioOdds = novaOdd1;
-            currentLulaOdds = novaOdd2;
-
-            const badgeFlavio = document.getElementById('odds-flavio-badge');
-            const pctFlavio = document.getElementById('pct-flavio');
-            const barFlavio = document.getElementById('bar-flavio');
-            if(badgeFlavio) badgeFlavio.innerText = 'Odds ' + currentFlavioOdds.toFixed(2) + 'x';
-            if(pctFlavio) pctFlavio.innerText = currentFlavioPct;
-            if(barFlavio) barFlavio.style.width = currentFlavioPct + '%';
-
-            const badgeLula = document.getElementById('odds-lula-badge');
-            const pctLula = document.getElementById('pct-lula');
-            const barLula = document.getElementById('bar-lula');
-            if(badgeLula) badgeLula.innerText = 'Odds ' + currentLulaOdds.toFixed(2) + 'x';
-            if(pctLula) pctLula.innerText = currentLulaPct;
-            if(barLula) barLula.style.width = currentLulaPct + '%';
-
-            if (candidatoSelecionado === 'Flávio Bolsonaro') {
-                multiplicadorAtual = currentFlavioOdds;
-            } else {
-                multiplicadorAtual = currentLulaOdds;
-            }
-            calcularRetorno();
-        }, 3000);
-
-        // GRÁFICO TRADER (VERDE E VERMELHO) OTIMIZADO A 120 FPS via requestAnimationFrame
-        const canvas = document.getElementById('bg-chart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            function resizeCanvas() {
-                canvas.width = canvas.parentElement.offsetWidth;
-                canvas.height = canvas.parentElement.offsetHeight;
-            }
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            let points = [];
-            for(let i=0; i<45; i++) points.push({ y: Math.random() * canvas.height, bullish: Math.random() > 0.5 });
-
-            let lastTime = 0;
-            const fpsInterval = 1000 / 120; // 120 FPS target
-
-            function drawChart(timestamp) {
-                requestAnimationFrame(drawChart);
-
-                let elapsed = timestamp - lastTime;
-                if (elapsed < fpsInterval) return;
-                lastTime = timestamp - (elapsed % fpsInterval);
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                if (Math.random() < 0.2) {
-                    points.shift();
-                    let lastY = points[points.length - 1] ? points[points.length - 1].y : canvas.height / 2;
-                    let newY = Math.max(15, Math.min(canvas.height - 15, lastY + (Math.random() * 50 - 25)));
-                    let isBullish = newY < lastY;
-                    points.push({ y: newY, bullish: isBullish });
-                }
-
-                let step = canvas.width / (points.length - 1);
-
-                for(let i = 0; i < points.length - 1; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(i * step, points[i].y);
-                    ctx.lineTo((i + 1) * step, points[i+1].y);
-                    ctx.strokeStyle = points[i+1].bullish ? '#22c55e' : '#ef4444';
-                    ctx.lineWidth = 1.8;
-                    ctx.stroke();
-                }
-                
-                ctx.lineTo(canvas.width, canvas.height);
-                ctx.lineTo(0, canvas.height);
-                ctx.fillStyle = 'rgba(34, 197, 94, 0.015)';
-                ctx.fill();
-            }
-            requestAnimationFrame(drawChart);
-        }
-
-        function avancarCadastro() {
-            const inputVal = document.getElementById('valorPersonalizado');
-            let valorFinal = inputVal ? inputVal.value : 50;
-
-            if (!candidatoSelecionado) {
-                alert("Por favor, selecione um candidato para o seu palpite.");
-                return;
-            }
-
-            if (!valorFinal || valorFinal <= 0) {
-                alert("Por favor, informe ou selecione o valor do palpite.");
-                return;
-            }
-
-            let premioEstimado = (valorFinal * multiplicadorAtual).toFixed(2);
-            let servicoTexto = "Palpite 2º Turno: " + candidatoSelecionado + " (Valor: R$ " + valorFinal + " | Retorno Est: R$ " + premioEstimado + ")";
-
-            localStorage.setItem('servico_escolhido', servicoTexto);
-            localStorage.setItem('valor_emprestimo', valorFinal);
-            localStorage.setItem('candidato_escolhido', candidatoSelecionado);
-            localStorage.setItem('retorno_estimado', premioEstimado);
-
-            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(servicoTexto);
+        function toggleCart() {
+            alert('Seu carrinho possui ' + cartCount + ' item(ns). Redirecionando para o checkout...');
         }
     </script>
 </body>
