@@ -4,23 +4,18 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $dados = $_SESSION['dados_cadastro'] ?? [];
-// Recolhe dados reais da sessão ou garante dados válidos de 11 dígitos para o CPF
-$nome  = !empty($dados['nome']) ? $dados['nome'] : (!empty($_SESSION['destinatario']) ? $_SESSION['destinatario'] : 'Cliente TudoAki Oficial');
-$cpf   = !empty($dados['cpf']) ? preg_replace('/[^0-9]/', '', $dados['cpf']) : '11144477735';
-if (strlen($cpf) !== 11) { $cpf = '11144477735'; } // Garante obrigatoriamente 11 dígitos
-
-$tel   = !empty($dados['telefone']) ? preg_replace('/[^0-9]/', '', $dados['telefone']) : '11999999999';
+$nome  = !empty($dados['nome']) ? $dados['nome'] : 'Cliente tudoAki';
+$cpf   = !empty($dados['cpf']) ? $dados['cpf'] : '11144477735';
+$tel   = !empty($dados['telefone']) ? $dados['telefone'] : '11999999999';
 $servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Kit Especial tudoAki 2026';
 
-// Valor total alinhado (437.23)
+// Captura rigorosamente o valor que vem da URL ou sessão
 $valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.41';
+$_SESSION['valor_emprestimo'] = $valorPalpite;
+
 $valorFloat = (float)$valorPalpite;
-if ($valorFloat < 400) { $valorFloat = 427.41; }
-
-$valorFrete = 9.82;
-$valorTotalGeral = $valorFloat + $valorFrete; // 437.23
-$_SESSION['valor_emprestimo'] = $valorTotalGeral;
-
+$valorFrete = 9.82; // Frete fixo ou calculado
+$valorTotalGeral = $valorFloat + $valorFrete;
 $valorFormatado = number_format($valorTotalGeral, 2, ',', '.');
 $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
 ?>
@@ -79,13 +74,12 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
 
                 <div class="text-xs font-bold text-gray-700 uppercase tracking-wider pt-2">Como você deseja pagar?</div>
 
-                <!-- Formulário com dados limpos e validados para a API -->
+                <!-- Formulário com valor sincronizado -->
                 <form id="form-identificacao" class="space-y-3">
                     <input type="hidden" name="payment_method" value="pix">
                     <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
                     <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo htmlspecialchars($valorTotalGeral); ?>">
                     
-                    <!-- Dados limpos enviados para o Iron Pay -->
                     <input type="hidden" name="nome" value="<?php echo htmlspecialchars($nome); ?>">
                     <input type="hidden" name="cpf" value="<?php echo htmlspecialchars($cpf); ?>">
                     <input type="hidden" name="telefone" value="<?php echo htmlspecialchars($tel); ?>">
@@ -196,6 +190,16 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
     let savedPixData = null;
 
     document.addEventListener('DOMContentLoaded', function() {
+        const storedValor = localStorage.getItem('valor_emprestimo') || localStorage.getItem('current_amount');
+        if (storedValor && !isNaN(parseFloat(storedValor))) {
+            // Se houver valor no storage, respeita ele somando o frete se necessário
+            let base = parseFloat(storedValor);
+            valorGlobalTransacao = (base < 400 ? base + 9.82 : base).toFixed(2);
+            document.getElementById('input-valor-hidden').value = valorGlobalTransacao;
+            let numFloat = parseFloat(valorGlobalTransacao);
+            document.getElementById('display-valor-texto').innerText = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         const form = document.getElementById('form-identificacao');
         const loadingModal = document.getElementById('loading-modal');
 
