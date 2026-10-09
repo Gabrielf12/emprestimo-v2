@@ -12,6 +12,8 @@ $user_id_sessao = $_SESSION['user_id'] ?? null;
 require_once '../db_config.php';
 
 $IRONPAY_API_TOKEN = 'dHWOXlpdPL7MuNxonLM4JtwsWAClZ4bTJdBYc6eJxl2tEtLsQvaocwlEDttP';
+$product_hash      = 'iatlfawko9';
+$offer_hash        = 'ksf2tt43yt';
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
@@ -41,9 +43,6 @@ try {
     }
 
     $valor_total_centavos = (int)round($custom_amount * 100);
-
-    $product_hash = 'iatlfawko9';
-    $offer_hash   = 'ksf2tt43yt';
     $postback_url = 'https://www.tiktokshoop.store/api/webhook_ironpay.php';
     $api_url_full = "https://api.ironpayapp.com.br/api/public/v1/transactions";
 
@@ -51,7 +50,6 @@ try {
         'api_token'      => $IRONPAY_API_TOKEN,
         'product_hash'   => $product_hash,
         'offer_hash'     => $offer_hash,
-        'operation_type' => 1,
         'payment_method' => 'pix',
         'amount'         => $valor_total_centavos,
         'postback_url'   => $postback_url,
@@ -79,7 +77,7 @@ try {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 25);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -97,31 +95,60 @@ try {
         throw new Exception("cURL Error: " . $curl_error);
     }
 
+    $responseData = json_decode($response, true);
+
     if ($http_code !== 200 && $http_code !== 201) {
-        // Devolve diretamente o texto cru da resposta da Iron Pay para o alerta no ecrã
-        throw new Exception("Iron Pay [$http_code]: " . $response);
+        $msg_erro = $responseData['message'] ?? $responseData['error'] ?? $response;
+        throw new Exception("Iron Pay [$http_code]: " . (is_array($msg_erro) ? json_encode($msg_erro) : $msg_erro));
     }
 
-    $responseData = json_decode($response, true);
-    $pix_code_final = $responseData['pix_qr_code'] ?? $responseData['pix_code'] ?? null;
+    $pix_code_final = $responseData['pix_qr_code'] ?? $responseData['pix_code'] ?? $responseData['data']['pix_qr_code'] ?? $responseData['data']['pix_code'] ?? null;
+    
     if (empty($pix_code_final)) {
         if (preg_match('/"pix_qr_code"\s*:\s*"([^"]+)"/', $response, $matches)) {
+            $pix_code_final = $matches[1];
+        } elseif (preg_match('/"pix_code"\s*:\s*"([^"]+)"/', $response, $matches)) {
             $pix_code_final = $matches[1];
         }
     }
 
-    $gateway_txid_final = $responseData['hash'] ?? $responseData['token'] ?? ('iron_' . uniqid());
+    $gateway_txid_final = $responseData['hash'] ?? $responseData['token'] ?? $responseData['data']['hash'] ?? ('iron_' . uniqid());
 
     if (empty($pix_code_final)) {
         throw new Exception("Pix não retornado. Resposta: " . $response);
     }
 
+    $localPedidoId = rand(10000, 99999);
+    try {
+        $stmt_insert = $pdo->prepare("INSERT INTO pedidos
+            (user_id, gateway_txid, status, customer_name, customer_email, customer_cpf, customer_phone, product_name, quantity, total_amount_centavos, pix_code)
+            VALUES
+            (:user_id, :txid, 'PENDENTE', :name, :email, :cpf, :phone, :prod_name, :qty, :total, :pix_code)");
+
+        $stmt_insert->execute([
+            'user_id'   => $user_id_sessao ? (int)$user_id_sessao : null,
+            'txid'      => $gateway_txid_final,
+            'name'      => $customer_name,
+            'email'     => $customer_email,
+            'cpf'       => $customer_cpf,
+            'phone'     => $full_phone_55,
+            'prod_name' => $servico_nome,
+            'qty'       => $quantity,
+            'total'     => $valor_total_centavos,
+            'pix_code'  => $pix_code_final
+        ]);
+
+        $db_id = $pdo->lastInsertId();
+        if ($db_id) $localPedidoId = $db_id;
+    } catch (Exception $dbErr) {}
+
     http_response_code(200);
     echo json_encode([
         'status'    => 'success',
         'pix_code'  => $pix_code_final,
-        'pedidoId'  => rand(10000, 99999),
-        'valor'     => number_format($valor_total_centavos / 100, 2, '.', '')
+        'pedidoId'  => $localPedidoId,
+        'valor'     => number_format($valor_total_centavos / 100, 2, '.', ''),
+        'expira_em' => date(DATE_ATOM, strtotime('+10 minutes'))
     ]);
     exit;
 
