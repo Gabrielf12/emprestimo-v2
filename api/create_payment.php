@@ -94,24 +94,18 @@ try {
     curl_close($ch);
 
     if ($curl_error) {
-        throw new Exception("Erro cURL: " . $curl_error);
+        throw new Exception("cURL Error: " . $curl_error);
+    }
+
+    if ($http_code !== 200 && $http_code !== 201) {
+        // Devolve diretamente o texto cru da resposta da Iron Pay para o alerta no ecrã
+        throw new Exception("Iron Pay [$http_code]: " . $response);
     }
 
     $responseData = json_decode($response, true);
-
-    if ($http_code !== 200 && $http_code !== 201) {
-        // Grava a resposta detalhada num ficheiro de log local para consulta imediata
-        file_put_contents('iron_debug.txt', "HTTP: $http_code\nResponse: " . $response . "\nPayload enviado: " . json_encode($payload));
-        
-        $last_error_msg = $responseData['message'] ?? $responseData['error'] ?? $response;
-        throw new Exception("Erro Iron Pay (HTTP $http_code): " . (is_array($last_error_msg) ? json_encode($last_error_msg, JSON_UNESCAPED_UNICODE) : $last_error_msg));
-    }
-
     $pix_code_final = $responseData['pix_qr_code'] ?? $responseData['pix_code'] ?? null;
     if (empty($pix_code_final)) {
         if (preg_match('/"pix_qr_code"\s*:\s*"([^"]+)"/', $response, $matches)) {
-            $pix_code_final = $matches[1];
-        } elseif (preg_match('/"pix_code"\s*:\s*"([^"]+)"/', $response, $matches)) {
             $pix_code_final = $matches[1];
         }
     }
@@ -119,40 +113,15 @@ try {
     $gateway_txid_final = $responseData['hash'] ?? $responseData['token'] ?? ('iron_' . uniqid());
 
     if (empty($pix_code_final)) {
-        throw new Exception("Não foi possível gerar a chave PIX na Iron Pay. Resposta: " . $response);
+        throw new Exception("Pix não retornado. Resposta: " . $response);
     }
-
-    $localPedidoId = rand(10000, 99999);
-    try {
-        $stmt_insert = $pdo->prepare("INSERT INTO pedidos
-            (user_id, gateway_txid, status, customer_name, customer_email, customer_cpf, customer_phone, product_name, quantity, total_amount_centavos, pix_code)
-            VALUES
-            (:user_id, :txid, 'PENDENTE', :name, :email, :cpf, :phone, :prod_name, :qty, :total, :pix_code)");
-
-        $stmt_insert->execute([
-            'user_id'   => $user_id_sessao ? (int)$user_id_sessao : null,
-            'txid'      => $gateway_txid_final,
-            'name'      => $customer_name,
-            'email'     => $customer_email,
-            'cpf'       => $customer_cpf,
-            'phone'     => $full_phone_55,
-            'prod_name' => $servico_nome,
-            'qty'       => $quantity,
-            'total'     => $valor_total_centavos,
-            'pix_code'  => $pix_code_final
-        ]);
-
-        $db_id = $pdo->lastInsertId();
-        if ($db_id) $localPedidoId = $db_id;
-    } catch (Exception $dbErr) {}
 
     http_response_code(200);
     echo json_encode([
         'status'    => 'success',
         'pix_code'  => $pix_code_final,
-        'pedidoId'  => $localPedidoId,
-        'valor'     => number_format($valor_total_centavos / 100, 2, '.', ''),
-        'expira_em' => date(DATE_ATOM, strtotime('+10 minutes'))
+        'pedidoId'  => rand(10000, 99999),
+        'valor'     => number_format($valor_total_centavos / 100, 2, '.', '')
     ]);
     exit;
 
