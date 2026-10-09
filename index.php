@@ -90,14 +90,9 @@ require_once 'db_config.php';
     <!-- Conteúdo Principal -->
     <main class="max-w-6xl w-full mx-auto p-4 my-4 space-y-6 flex-grow">
 
-        <!-- Banner Promocional Local -->
-        <div class="rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/50 relative bg-navy-dark">
-            <img src="banner.jpg" alt="Sorteio Nivus ou 60 Mil no Pix" class="w-full h-auto object-cover max-h-[480px]">
-            <div class="absolute bottom-4 right-4 z-10">
-                <a href="#vitrine" class="bg-gold hover:opacity-90 text-navy font-black px-6 py-3 rounded-xl shadow-lg inline-block uppercase text-xs tracking-wider transition gold-pulse">
-                    Participar do Sorteio
-                </a>
-            </div>
+        <!-- Banner Promocional Ajustado (Exibe a imagem completa) -->
+        <div class="rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/50 relative bg-navy-dark flex justify-center items-center">
+            <img src="banner.jpg" alt="Sorteio Nivus ou 60 Mil no Pix" class="w-full h-auto object-contain block">
         </div>
 
         <!-- Título da Vitrine -->
