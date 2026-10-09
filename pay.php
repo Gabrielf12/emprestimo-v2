@@ -80,13 +80,13 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
 
                         <div>
                             <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Nome Completo</label>
-                            <input type="text" name="nome" id="input-nome" value="<?php echo htmlspecialchars($nome); ?>" required placeholder="Digite seu nome completo" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-cb transition">
+                            <input type="text" name="customer_name" id="input-nome" value="<?php echo htmlspecialchars($nome); ?>" required placeholder="Digite seu nome completo" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-cb transition">
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">CPF (somente números)</label>
-                                <input type="text" name="cpf" id="input-cpf" value="<?php echo htmlspecialchars($cpf); ?>" required placeholder="00000000000" maxlength="11" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-cb transition">
+                                <input type="text" name="customer_cpf" id="input-cpf" value="<?php echo htmlspecialchars($cpf); ?>" required placeholder="00000000000" maxlength="11" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-cb transition">
                             </div>
                             <div>
                                 <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Telemóvel / WhatsApp</label>
@@ -110,31 +110,6 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                         <span class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow">Gerar PIX Agora <i class="fa-solid fa-arrow-right ml-1"></i></span>
                     </button>
                 </form>
-
-                <!-- Outras opções visuais -->
-                <div onclick="alert('Opção temporariamente indisponível. Utilize o Pix.')" class="payment-card bg-white rounded-xl p-4 shadow-sm border border-gray-200 cursor-pointer flex justify-between items-center opacity-70">
-                    <div class="flex items-start gap-3">
-                        <i class="fa-solid fa-file-invoice-dollar text-blue-cb text-xl mt-1"></i>
-                        <div>
-                            <h4 class="text-xs font-bold text-gray-900">Carnê digital</h4>
-                            <p class="text-[11px] text-gray-500">Parcele sem usar limite do cartão.</p>
-                            <span class="text-xs font-black text-blue-cb mt-1 block">a partir de R$ <?php echo $valorFormatado; ?></span>
-                        </div>
-                    </div>
-                    <span class="text-xs text-blue-cb font-bold">Consultar*</span>
-                </div>
-
-                <div onclick="alert('Opção temporariamente indisponível. Utilize o Pix.')" class="payment-card bg-white rounded-xl p-4 shadow-sm border border-gray-200 cursor-pointer flex justify-between items-center opacity-70">
-                    <div class="flex items-start gap-3">
-                        <i class="fa-solid fa-credit-card text-blue-cb text-xl mt-1"></i>
-                        <div>
-                            <h4 class="text-xs font-bold text-gray-900">Cartão de crédito</h4>
-                            <p class="text-[11px] text-gray-500">Pague à vista ou parcelado</p>
-                            <span class="text-xs font-black text-blue-cb mt-1 block">a partir de R$ <?php echo $valorFormatado; ?></span>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
-                </div>
 
             </div>
 
@@ -167,13 +142,6 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                             <span>Total</span>
                             <span class="text-blue-cb font-black text-lg">R$ <?php echo $valorFormatado; ?></span>
                         </div>
-                        <div class="text-[11px] text-gray-500 text-right -mt-2">
-                            ou <strong class="text-emerald-700">R$ <?php echo $valorFormatado; ?></strong> no Pix
-                        </div>
-                    </div>
-
-                    <div class="text-center text-[11px] text-gray-500 pt-3 border-t border-gray-100">
-                        Preencha seus dados acima e clique em Gerar PIX.
                     </div>
                 </div>
             </div>
@@ -186,26 +154,20 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
     <div id="loading-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6 hidden">
         <div class="bg-white rounded-2xl p-6 text-center shadow-2xl w-full max-w-xs flex flex-col items-center border border-slate-200">
             <div id="modal-spinner" class="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
-            <div id="modal-icon-error" class="text-amber-500 text-4xl mb-2 hidden"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <h4 class="font-bold text-gray-900 text-sm" id="loading-title">Gerando seu PIX...</h4>
-            <p class="text-xs text-gray-500 mt-2 leading-relaxed" id="loading-sub">Aguarde um instante.</p>
-            <button id="btn-modal-close" onclick="redirectPixAfterCard()" class="mt-4 bg-blue-cb hover:bg-blue-900 text-white text-xs font-bold py-2 px-4 rounded-lg hidden w-full">Continuar</button>
+            <p class="text-xs text-gray-500 mt-2">Aguarde um instante.</p>
         </div>
     </div>
 
     <!-- Rodapé -->
     <footer class="bg-white text-gray-500 text-xs py-4 text-center border-t border-gray-200 mt-8">
-        © 2026 tudoAki - Sua Loja de Tudo. Aqui. Todos os direitos reservados.
+        © 2026 tudoAki - Todos os direitos reservados.
     </footer>
 
     <script>
     let valorGlobalTransacao = "<?php echo $valorTotalGeral; ?>";
-    let savedPixData = null;
 
     document.addEventListener('DOMContentLoaded', function() {
-        localStorage.setItem('current_amount', valorGlobalTransacao);
-        localStorage.setItem('valor_emprestimo', valorGlobalTransacao);
-
         const form = document.getElementById('form-identificacao');
         const loadingModal = document.getElementById('loading-modal');
 
@@ -213,7 +175,6 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // Recolhe e limpa os dados diretamente dos inputs visíveis preenchidos pelo utilizador
                 const nomeVal = document.getElementById('input-nome').value.trim();
                 const cpfVal = document.getElementById('input-cpf').value.replace(/\D/g, '');
                 const phoneVal = document.getElementById('input-phone').value.replace(/\D/g, '');
@@ -223,11 +184,6 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                     return;
                 }
 
-                document.getElementById('loading-title').innerText = 'Gerando seu PIX';
-                document.getElementById('loading-sub').innerText = 'Conectando ao sistema de pagamentos...';
-                document.getElementById('modal-spinner').classList.remove('hidden');
-                document.getElementById('modal-icon-error').classList.add('hidden');
-                document.getElementById('btn-modal-close').classList.add('hidden');
                 loadingModal.classList.remove('hidden');
 
                 const dataObj = {
@@ -235,11 +191,8 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                     servico: "<?php echo htmlspecialchars($servico); ?>",
                     valor: valorGlobalTransacao,
                     amount: valorGlobalTransacao,
-                    nome: nomeVal,
                     customer_name: nomeVal,
-                    cpf: cpfVal,
                     customer_cpf: cpfVal,
-                    telefone: phoneVal,
                     phone: phoneVal,
                     customer_phone: phoneVal
                 };
@@ -254,8 +207,6 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                     const result = await response.json();
 
                     if (response.ok && result.status === 'success') {
-                        savedPixData = result;
-
                         let cleanPix = result.pix_code.replace(/\\/g, '');
                         localStorage.setItem('current_pix_code', cleanPix);
                         localStorage.setItem('current_pedido_id', result.pedidoId);
@@ -272,18 +223,6 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
             });
         }
     });
-
-    function redirectPixAfterCard() {
-        if (savedPixData && savedPixData.pix_code) {
-            let cleanPix = savedPixData.pix_code.replace(/\\/g, '');
-            localStorage.setItem('current_pix_code', cleanPix);
-            localStorage.setItem('current_pedido_id', savedPixData.pedidoId);
-            localStorage.setItem('current_amount', valorGlobalTransacao);
-            window.location.href = 'qrcode.php';
-        } else {
-            document.getElementById('loading-modal').classList.add('hidden');
-        }
-    }
     </script>
 </body>
 </html>
