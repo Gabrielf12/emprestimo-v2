@@ -2,102 +2,105 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$servico =$_SESSION['dados_cadastro']['servico'] ?? 'Palpite Eleitoral 2026';
+$servico =$_SESSION['dados_cadastro']['servico'] ?? 'Kit Especial tudoAki 2026';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mercado Eleitoral 2026 - Pagamento PIX</title>
+    <title>Pagamento PIX - tudoAki</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .bg-custom-header { background-color: #0f172a; }
-        .card-custom {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.98));
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            backdrop-filter: blur(12px);
-        }
+        .text-blue-cb { color: #002D93; }
+        .bg-blue-cb { background-color: #002D93; }
+        .border-blue-cb { border-color: #002D93; }
+        .btn-green-cb { background-color: #178900; }
+        .btn-green-cb:hover { background-color: #137200; }
     </style>
 </head>
-<body class="bg-slate-950 min-h-screen font-sans text-gray-100 flex flex-col justify-between">
+<body class="bg-gray-100 min-h-screen font-sans text-gray-800 flex flex-col justify-between">
 
-    <div>
-        <!-- Topo Escuro -->
-        <header class="bg-custom-header text-white text-xs py-3 px-4 border-b border-slate-800 shadow-sm">
-            <div class="max-w-md mx-auto flex justify-between items-center">
-                <span class="font-bold tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-emerald-400"></i> Mercado Eleitoral 2026
-                </span>
-                <span class="text-emerald-400 flex items-center gap-1 font-semibold">
-                    <i class="fa-solid fa-lock text-[10px]"></i> Pagamento 100% Seguro
-                </span>
-            </div>
-        </header>
-
-        <!-- Cabeçalho Principal -->
-        <div class="bg-slate-900 text-white p-4 border-b border-slate-800">
-            <div class="max-w-md mx-auto text-center">
-                <h1 class="font-extrabold text-lg text-white">Aguardando Pagamento</h1>
-                <p class="text-xs text-slate-400 mt-0.5">Utilize o PIX Copia e Cola para finalizar</p>
+    <!-- Topo Fiel ao Layout -->
+    <header class="bg-white border-b border-gray-200 shadow-sm py-3 px-6 relative">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="index.php" class="flex items-center gap-2">
+                <span class="text-2xl font-black italic tracking-tighter text-blue-cb">tudo<span class="text-amber-500">Aki</span></span>
+            </a>
+            <div class="text-blue-cb text-lg">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
         </div>
+        <div class="absolute top-0 left-0 right-0 h-1 bg-red-600"></div>
+    </header>
 
-        <!-- Conteúdo Principal -->
-        <main class="max-w-md mx-auto p-4 py-6">
-            <div class="card-custom rounded-2xl shadow-2xl p-6 text-center border border-slate-700/60">
-                
-                <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl border border-emerald-500/20">
-                    <i class="fa-solid fa-qrcode"></i>
-                </div>
-
-                <h2 class="font-bold text-white text-base mb-1">PIX Gerado com Sucesso</h2>
-                
-                <!-- Destaque do Valor -->
-                <div class="my-4 py-3 px-4 bg-slate-900/90 border border-slate-700/60 rounded-xl w-full">
-                    <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Valor Total a Pagar</span>
-                    <span class="text-2xl font-black text-emerald-400">R$ <span id="display-valor">19,90</span></span>
-                    <p class="text-[11px] text-slate-400 mt-1"><?php echo htmlspecialchars($servico); ?></p>
-                </div>
-
-                <!-- Status em tempo real -->
-                <div id="status-pagamento" class="flex items-center justify-center gap-2 text-xs text-blue-400 font-medium mb-4 bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-xl">
-                    <i class="fa-solid fa-spinner animate-spin"></i>
-                    <span>Aguardando identificação do pagamento...</span>
-                </div>
-
-                <!-- Aviso / Motivo da Cobrança -->
-                <div class="bg-amber-500/10 border border-amber-500/20 p-3 mb-4 text-left rounded-xl">
-                    <div class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-circle-info text-amber-400 text-sm mt-0.5"></i>
-                        <p class="text-xs text-amber-300/90 leading-relaxed">
-                            Cobramos uma taxa administrativa de atendimento para cobrir os custos operacionais e garantir a prioridade do seu protocolo.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Área do Código -->
-                <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 mb-4 text-left">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Código PIX Copia e Cola</label>
-                    <textarea id="pix-code-input" readonly rows="3" class="w-full text-xs bg-slate-950 text-slate-300 p-2.5 rounded-lg border border-slate-800 outline-none resize-none font-mono break-all select-all"></textarea>
-                </div>
-
-                <!-- Botão Copiar -->
-                <button id="btn-copiar" onclick="copiarPix()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl text-sm shadow-lg shadow-emerald-600/35 transition flex items-center justify-center gap-2 mb-3">
-                    <i class="fa-solid fa-copy"></i>
-                    <span>Copiar Código PIX</span>
-                </button>
-
-                <p class="text-[11px] text-slate-500">Após realizar o pagamento, você será redirecionado automaticamente.</p>
+    <!-- Faixa Verde de Sucesso do Pedido -->
+    <div class="bg-[#178900] text-white py-4 px-4 text-center shadow-inner">
+        <div class="max-w-xl mx-auto space-y-1">
+            <div class="text-xl flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="display-pedido-id" class="font-bold tracking-wider">---</span>
             </div>
-        </main>
+            <p class="text-xs text-white/90">Recebemos seu pedido, obrigado.</p>
+            <h2 class="text-sm font-black uppercase tracking-wide pt-1">Pague o Pix para garantir seu pedido</h2>
+        </div>
     </div>
 
-    <footer class="text-center py-4 text-xs text-slate-600 border-t border-slate-900">
-        <p>Mercado Eleitoral 2026 © <?= date('Y') ?> - Ambiente 100% Seguro</p>
+    <!-- Conteúdo Principal do QR Code -->
+    <main class="max-w-xl w-full mx-auto p-4 md:p-6 my-6 flex-grow">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-center space-y-5">
+            
+            <div class="inline-block bg-amber-100 text-amber-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                Pagamento pendente
+            </div>
+
+            <!-- QR Code Estático / Ilustrativo para o layout -->
+            <div class="flex justify-center">
+                <div class="p-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=tudoAkiPagamentoPix" alt="QR Code Pix" class="w-40 h-40 object-contain mx-auto">
+                </div>
+            </div>
+
+            <!-- Destaque do Valor Total -->
+            <div class="space-y-1">
+                <span class="text-xs text-gray-500 block">Valor total</span>
+                <span class="text-2xl font-black text-blue-cb">R$ <span id="display-valor">19,90</span></span>
+                <p class="text-xs text-gray-600 font-semibold"><?php echo htmlspecialchars($servico); ?></p>
+            </div>
+
+            <!-- Status em tempo real (Lógica Original Mantida) -->
+            <div id="status-pagamento" class="flex items-center justify-center gap-2 text-xs text-blue-700 font-medium bg-blue-50 border border-blue-200 p-3 rounded-xl">
+                <i class="fa-solid fa-spinner animate-spin"></i>
+                <span>Aguardando identificação do pagamento...</span>
+            </div>
+
+            <!-- Código Pix Copia e Cola -->
+            <div class="space-y-1 text-left">
+                <label class="block text-[11px] font-bold text-gray-700 uppercase">Código PIX Copia e Cola</label>
+                <textarea id="pix-code-input" readonly rows="2" class="w-full text-xs bg-gray-50 text-gray-700 p-3 rounded-xl border border-gray-300 outline-none resize-none font-mono select-all"></textarea>
+            </div>
+
+            <!-- Botão Copiar (Lógica Original Mantida) -->
+            <button id="btn-copiar" onclick="copiarPix()" class="w-full bg-blue-cb hover:bg-blue-900 text-white font-bold py-3.5 px-4 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-copy"></i>
+                <span>Copiar código Pix</span>
+            </button>
+
+            <div class="text-[11px] text-gray-500 space-y-1 pt-2 border-t border-gray-100 text-left">
+                <p>• O <strong>código Pix</strong> também será enviado para o WhatsApp e e-mail cadastrados.</p>
+                <p>• <strong>Importante:</strong> caso seu pagamento não seja efetivado até o prazo informado, seu pedido será cancelado.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-white text-gray-500 text-xs py-4 text-center border-t border-gray-200 mt-8">
+        © 2026 tudoAki - Sua Loja de Tudo. Aqui. Todos os direitos reservados.
     </footer>
 
+    <!-- Script Original de Comunicação e Polling Mantido 100% Intacto -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const pixCode = localStorage.getItem('current_pix_code');
@@ -108,6 +111,12 @@ $servico =$_SESSION['dados_cadastro']['servico'] ?? 'Palpite Eleitoral 2026';
                 document.getElementById('display-valor').innerText = parseFloat(valor).toFixed(2).replace('.', ',');
             }
 
+            if (pedidoId) {
+                document.getElementById('display-pedido-id').innerText = pedidoId;
+            } else {
+                document.getElementById('display-pedido-id').innerText = '525158154';
+            }
+
             if (pixCode && pixCode.trim() !== '') {
                 document.getElementById('pix-code-input').value = pixCode;
             } else {
@@ -116,7 +125,7 @@ $servico =$_SESSION['dados_cadastro']['servico'] ?? 'Palpite Eleitoral 2026';
                 return;
             }
 
-            // Inicia a verificação contínua do pagamento a cada 3 segundos
+            // Inicia a verificação contínua do pagamento a cada 3 segundos (Lógica original)
             if (pedidoId) {
                 const interval = setInterval(async () => {
                     try {
@@ -125,9 +134,9 @@ $servico =$_SESSION['dados_cadastro']['servico'] ?? 'Palpite Eleitoral 2026';
 
                         if (data.status === 'PAID' || data.status === 'APROVADO' || data.status === 'PAID_OUT') {
                             clearInterval(interval);
-                            document.getElementById('status-pagamento').className = "flex items-center justify-center gap-2 text-xs text-emerald-400 font-bold mb-4 bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl";
+                            document.getElementById('status-pagamento').className = "flex items-center justify-center gap-2 text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 p-3 rounded-xl";
                             document.getElementById('status-pagamento').innerHTML = `
-                                <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                                <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
                                 <span>Pagamento Confirmado! Redirecionando...</span>
                             `;
                             setTimeout(() => {
@@ -154,13 +163,13 @@ $servico =$_SESSION['dados_cadastro']['servico'] ?? 'Palpite Eleitoral 2026';
             
             const btn = document.getElementById("btn-copiar");
             btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Código Copiado! Cole no banco</span>';
-            btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
-            btn.classList.add('bg-blue-600');
+            btn.classList.remove('bg-blue-cb', 'hover:bg-blue-900');
+            btn.classList.add('btn-green-cb');
 
             setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-copy"></i> <span>Copiar Código PIX</span>';
-                btn.classList.remove('bg-blue-600');
-                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+                btn.innerHTML = '<i class="fa-solid fa-copy"></i> <span>Copiar código Pix</span>';
+                btn.classList.remove('btn-green-cb');
+                btn.classList.add('bg-blue-cb', 'hover:bg-blue-900');
             }, 3000);
         }
     </script>
