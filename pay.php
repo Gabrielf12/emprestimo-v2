@@ -10,7 +10,8 @@ $cpf   = !empty($dados['cpf']) ? $dados['cpf'] : '11144477735'; // CPF válido g
 $tel   = !empty($dados['telefone']) ? $dados['telefone'] : '11999999999';
 $servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Kit Especial tudoAki 2026';
 
-$valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.40';
+// Valor totalmente dinâmico sem ficar preso a um número fixo obsoleto
+$valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '100.00';
 $_SESSION['valor_emprestimo'] = $valorPalpite;
 
 $valorFloat = (float)$valorPalpite;
@@ -146,7 +147,7 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between text-gray-600 text-xs">
                             <span>01 Produto</span>
-                            <span class="font-bold text-gray-900">R$ <?php echo $valorFormatado; ?></span>
+                            <span class="font-bold text-gray-900">R$ <span id="summary-valor-produto"><?php echo $valorFormatado; ?></span></span>
                         </div>
                         <div class="flex justify-between text-gray-600 text-xs pb-3 border-b border-gray-100">
                             <span>Entrega</span>
@@ -154,10 +155,10 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                         </div>
                         <div class="flex justify-between text-base font-bold text-gray-900 pt-1">
                             <span>Total</span>
-                            <span class="text-blue-cb font-black text-lg">R$ <?php echo number_format($valorTotalGeral, 2, ',', '.'); ?></span>
+                            <span class="text-blue-cb font-black text-lg">R$ <span id="summary-valor-total"><?php echo number_format($valorTotalGeral, 2, ',', '.'); ?></span></span>
                         </div>
                         <div class="text-[11px] text-gray-500 text-right -mt-2">
-                            ou <strong class="text-emerald-700">R$ <?php echo $valorFormatado; ?></strong> no Pix
+                            ou <strong class="text-emerald-700">R$ <span id="summary-valor-pix"><?php echo $valorFormatado; ?></span></strong> no Pix
                         </div>
                     </div>
 
@@ -189,6 +190,7 @@ $valorTotalGeral = $valorFloat + $valorFrete;
 
     <script>
     let valorGlobalTransacao = "<?php echo $valorPalpite; ?>";
+    let valorFreteGlobal = 9.82;
     let savedPixData = null;
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -198,7 +200,13 @@ $valorTotalGeral = $valorFloat + $valorFrete;
             document.getElementById('input-valor-hidden').value = storedValor;
             let numFloat = parseFloat(storedValor);
             if (!isNaN(numFloat)) {
-                document.getElementById('display-valor-texto').innerText = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                let formatted = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('display-valor-texto').innerText = formatted;
+                document.getElementById('summary-valor-produto').innerText = formatted;
+                document.getElementById('summary-valor-pix').innerText = formatted;
+                
+                let totalGeral = numFloat + valorFreteGlobal;
+                document.getElementById('summary-valor-total').innerText = totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
         }
 
@@ -220,6 +228,7 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                 const dataObj = {};
                 formData.forEach((value, key) => dataObj[key] = value);
                 dataObj['valor'] = valorGlobalTransacao;
+                dataObj['amount'] = valorGlobalTransacao;
 
                 try {
                     const response = await fetch('api/create_payment.php', {
