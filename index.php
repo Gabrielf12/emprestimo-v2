@@ -44,10 +44,10 @@ require_once 'db_config.php';
     <header class="bg-navy-dark border-b border-gold/30 shadow-lg sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
             
-            <!-- Logomarca (Direto da imagem enviada) -->
+            <!-- Logomarca Local -->
             <div class="flex items-center justify-between w-full md:w-auto">
                 <a href="index.php" class="flex items-center gap-3">
-                    <img src="https://i.ibb.co/2sdJzL9w/tudoaki-logo.jpg" alt="tudoAki Logo" class="h-12 md:h-14 object-contain rounded-lg border border-gold/40 shadow-md bg-navy" onerror="this.onerror=null; this.src='logo.jpg';">
+                    <img src="logo.jpg" alt="tudoAki Logo" class="h-12 md:h-14 object-contain rounded-lg border border-gold/40 shadow-md bg-navy">
                 </a>
                 <div class="md:hidden flex items-center gap-3">
                     <button onclick="toggleCart()" class="relative text-gold text-lg">
@@ -90,9 +90,9 @@ require_once 'db_config.php';
     <!-- Conteúdo Principal -->
     <main class="max-w-6xl w-full mx-auto p-4 my-4 space-y-6 flex-grow">
 
-        <!-- Banner Promocional do Sorteio (Direto da imagem enviada) -->
+        <!-- Banner Promocional Local -->
         <div class="rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/50 relative bg-navy-dark">
-            <img src="https://i.ibb.co/VWVw0w94/tudoaki-banner.jpg" alt="Sorteio Nivus ou 60 Mil no Pix" class="w-full h-auto object-cover max-h-[480px]" onerror="this.onerror=null; this.src='banner_sorteio.jpg';">
+            <img src="banner.jpg" alt="Sorteio Nivus ou 60 Mil no Pix" class="w-full h-auto object-cover max-h-[480px]">
             <div class="absolute bottom-4 right-4 z-10">
                 <a href="#vitrine" class="bg-gold hover:opacity-90 text-navy font-black px-6 py-3 rounded-xl shadow-lg inline-block uppercase text-xs tracking-wider transition gold-pulse">
                     Participar do Sorteio
