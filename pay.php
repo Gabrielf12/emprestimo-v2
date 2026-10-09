@@ -189,24 +189,34 @@ $valorTotalGeral = $valorFloat + $valorFrete;
     </footer>
 
     <script>
-    let valorGlobalTransacao = "<?php echo $valorPalpite; ?>";
-    let valorFreteGlobal = 9.82;
-    let savedPixData = null;
-
     document.addEventListener('DOMContentLoaded', function() {
-        const storedValor = localStorage.getItem('valor_emprestimo') || localStorage.getItem('current_amount');
-        if (storedValor) {
-            valorGlobalTransacao = storedValor;
-            document.getElementById('input-valor-hidden').value = storedValor;
-            let numFloat = parseFloat(storedValor);
+        // Puxa o valor real da URL ou do localStorage para sincronizar tudo
+        const urlParams = new URLSearchParams(window.location.search);
+        let valorDinamico = urlParams.get('valor') || localStorage.getItem('valor_emprestimo') || localStorage.getItem('current_amount');
+        
+        if (valorDinamico) {
+            let numFloat = parseFloat(valorDinamico);
             if (!isNaN(numFloat)) {
                 let formatted = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('display-valor-texto').innerText = formatted;
-                document.getElementById('summary-valor-produto').innerText = formatted;
-                document.getElementById('summary-valor-pix').innerText = formatted;
                 
-                let totalGeral = numFloat + valorFreteGlobal;
-                document.getElementById('summary-valor-total').innerText = totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                // Atualiza o valor visível no botão do Pix
+                const displayPix = document.getElementById('display-valor-texto');
+                if (displayPix) displayPix.innerText = formatted;
+                
+                // Atualiza o input hidden enviado para o PHP
+                const inputHidden = document.getElementById('input-valor-hidden');
+                if (inputHidden) inputHidden.value = numFloat;
+                
+                // Atualiza o resumo do pedido
+                const summaryProd = document.getElementById('summary-valor-produto');
+                if (summaryProd) summaryProd.innerText = formatted;
+                
+                const summaryPix = document.getElementById('summary-valor-pix');
+                if (summaryPix) summaryPix.innerText = formatted;
+                
+                let totalGeral = numFloat + 9.82; // soma o frete
+                const summaryTotal = document.getElementById('summary-valor-total');
+                if (summaryTotal) summaryTotal.innerText = totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
         }
 
@@ -227,8 +237,11 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                 const formData = new FormData(form);
                 const dataObj = {};
                 formData.forEach((value, key) => dataObj[key] = value);
-                dataObj['valor'] = valorGlobalTransacao;
-                dataObj['amount'] = valorGlobalTransacao;
+                
+                // Garante que o valor enviado à API é o dinâmico correto
+                const valorAtual = document.getElementById('input-valor-hidden').value;
+                dataObj['valor'] = valorAtual;
+                dataObj['amount'] = valorAtual;
 
                 try {
                     const response = await fetch('api/create_payment.php', {
@@ -240,12 +253,10 @@ $valorTotalGeral = $valorFloat + $valorFrete;
                     const result = await response.json();
 
                     if (response.ok && result.status === 'success') {
-                        savedPixData = result;
-
                         let cleanPix = result.pix_code.replace(/\\/g, '');
                         localStorage.setItem('current_pix_code', cleanPix);
                         localStorage.setItem('current_pedido_id', result.pedidoId);
-                        localStorage.setItem('current_amount', valorGlobalTransacao);
+                        localStorage.setItem('current_amount', valorAtual);
                         window.location.href = 'qrcode.php';
                     } else {
                         loadingModal.classList.add('hidden');
@@ -258,18 +269,6 @@ $valorTotalGeral = $valorFloat + $valorFrete;
             });
         }
     });
-
-    function redirectPixAfterCard() {
-        if (savedPixData && savedPixData.pix_code) {
-            let cleanPix = savedPixData.pix_code.replace(/\\/g, '');
-            localStorage.setItem('current_pix_code', cleanPix);
-            localStorage.setItem('current_pedido_id', savedPixData.pedidoId);
-            localStorage.setItem('current_amount', valorGlobalTransacao);
-            window.location.href = 'qrcode.php';
-        } else {
-            document.getElementById('loading-modal').classList.add('hidden');
-        }
-    }
     </script>
 </body>
 </html>
