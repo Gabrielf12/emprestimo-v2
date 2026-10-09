@@ -9,19 +9,13 @@ $cpf   = !empty($dados['cpf']) ? $dados['cpf'] : '11144477735';
 $tel   = !empty($dados['telefone']) ? $dados['telefone'] : '11999999999';
 $servico = $dados['servico'] ?? $_GET['servico'] ?? $_POST['servico'] ?? 'Kit Especial tudoAki 2026';
 
-// Captura rigorosamente o valor que vem do produto e adiciona o frete
+// Captura rigorosamente o valor que vem da URL ou sessão
 $valorPalpite = $_GET['valor'] ?? $_POST['valor'] ?? $_SESSION['valor_emprestimo'] ?? $dados['valor'] ?? '427.41';
+$_SESSION['valor_emprestimo'] = $valorPalpite;
+
 $valorFloat = (float)$valorPalpite;
-
-// Se o valor base veio menor que o produto, ajusta para o valor correto do produto da imagem
-if ($valorFloat < 400) {
-    $valorFloat = 427.41;
-}
-
-$valorFrete = 9.82;
-$valorTotalGeral = $valorFloat + $valorFrete; // Total correto: 437.23
-$_SESSION['valor_emprestimo'] = $valorTotalGeral;
-
+$valorFrete = 9.82; // Frete fixo ou calculado
+$valorTotalGeral = $valorFloat + $valorFrete;
 $valorFormatado = number_format($valorTotalGeral, 2, ',', '.');
 $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
 ?>
@@ -80,7 +74,7 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
 
                 <div class="text-xs font-bold text-gray-700 uppercase tracking-wider pt-2">Como você deseja pagar?</div>
 
-                <!-- Formulário com valor correto -->
+                <!-- Formulário com valor sincronizado -->
                 <form id="form-identificacao" class="space-y-3">
                     <input type="hidden" name="payment_method" value="pix">
                     <input type="hidden" name="servico" value="<?php echo htmlspecialchars($servico); ?>">
@@ -90,7 +84,7 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
                     <input type="hidden" name="cpf" value="<?php echo htmlspecialchars($cpf); ?>">
                     <input type="hidden" name="telefone" value="<?php echo htmlspecialchars($tel); ?>">
 
-                    <!-- Opção PIX com o valor correto -->
+                    <!-- Opção PIX -->
                     <button type="submit" class="w-full text-left payment-card bg-white rounded-xl p-4 shadow-sm border-2 border-emerald-600 cursor-pointer flex justify-between items-center transition">
                         <div class="flex items-start gap-3">
                             <i class="fa-solid fa-qrcode text-emerald-600 text-xl mt-1"></i>
@@ -196,6 +190,16 @@ $valorProdutoFmt = number_format($valorFloat, 2, ',', '.');
     let savedPixData = null;
 
     document.addEventListener('DOMContentLoaded', function() {
+        const storedValor = localStorage.getItem('valor_emprestimo') || localStorage.getItem('current_amount');
+        if (storedValor && !isNaN(parseFloat(storedValor))) {
+            // Se houver valor no storage, respeita ele somando o frete se necessário
+            let base = parseFloat(storedValor);
+            valorGlobalTransacao = (base < 400 ? base + 9.82 : base).toFixed(2);
+            document.getElementById('input-valor-hidden').value = valorGlobalTransacao;
+            let numFloat = parseFloat(valorGlobalTransacao);
+            document.getElementById('display-valor-texto').innerText = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         const form = document.getElementById('form-identificacao');
         const loadingModal = document.getElementById('loading-modal');
 
