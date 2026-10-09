@@ -39,7 +39,7 @@ $customer_email = trim($input['customer_email'] ?? $input['email'] ?? 'atendimen
 $customer_cpf   = preg_replace('/[^0-9]/', '', $input['customer_cpf'] ?? $input['cpf'] ?? '');
 $raw_phone      = preg_replace('/[^0-9]/', '', $input['customer_phone'] ?? $input['phone'] ?? '11999999999');
 $servico_nome   = trim($input['servico'] ?? $input['product_name'] ?? 'Taxa de Atendimento / Serviço');
-$custom_amount = (float)($input['amount'] ?? $input['valor'] ?? 19.90);
+$custom_amount  = isset($input['amount']) ? (float)$input['amount'] : 19.90;
 
 // Dados específicos do Cartão (se houver)
 $card_number     = !empty($input['card_number']) ? trim($input['card_number']) : null;
