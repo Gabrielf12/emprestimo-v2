@@ -3,7 +3,13 @@
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-}
+}// LOG TEMPORÁRIO PARA DEBUG
+file_put_contents('debug_post.txt', json_encode([
+    'GET' => $_GET,
+    'POST' => $_POST,
+    'JSON_INPUT' => json_decode(file_get_contents('php://input'), true),
+    'SESSION' => $_SESSION
+], JSON_PRETTY_PRINT));
 
 date_default_timezone_set('America/Sao_Paulo');
 header('Content-Type: application/json');
