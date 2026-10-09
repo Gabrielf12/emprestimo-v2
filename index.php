@@ -212,12 +212,8 @@ require_once 'db_config.php';
         let cartCount = 0;
 
         function adicionarAoCarrinho(nomeProduto, preco) {
-            cartCount++;
-            document.getElementById('cart-count').innerText = cartCount;
-            document.getElementById('cart-count-mobile').innerText = cartCount;
-            alert('Produto "' + nomeProduto + '" adicionado ao carrinho com sucesso!');
+            window.location.href = 'cadastro.php?servico=' + encodeURIComponent(nomeProduto) + '&valor=' + preco;
         }
-
         function toggleCart() {
             alert('Seu carrinho possui ' + cartCount + ' item(ns). Redirecionando para o checkout...');
         }
